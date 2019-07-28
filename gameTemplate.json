@@ -1,0 +1,45 @@
+SCENARIO BOT ALPHA v0.1
+ {
+    "Title": "Title of the cenario",
+    "Story": ["The actual Story of the Scenario.", 
+              "Newlines are needed to keep track of stories make sure you create multiple lines for each story"],
+    "Options": {
+                //How Long should each player have for their turn
+                "timer": 60,
+                //How many Players are needed to start the game cannot be null will default to 1
+                "minPlayer": 2,
+                //How many Players does the game max out too. Can be Null, if null will allow any amount of players
+                "maxPlayer": 10,
+                //Allow for players to create thier own characters for the scenario, Default is false
+                "canCreate": false,
+                //Options for the creatable Characters
+                "canCreateOptions": {
+                        "HP": ["minHp","MaxHP"],
+                        "Attack": ["minAttack","maxAttack"],
+                        "Defense": ["minDefense","maxDefense"]
+                }
+
+                },
+        //Predefined players are stored here. Custom made Players will also be stored here once created
+        "Players": [{
+                //Will be the Discord MemberID once a person is assinged to that Player. If null character will not be used
+                "playerID": null,
+                "playerName":"Name",
+                "playerHP": 100,
+                "playerAttack": 50,
+                "playerDefense": 30,
+        },
+        ],
+
+        "Enemies": [{
+                //EnemyID is Used to identify an Enemy 
+                "enemyID": 1,
+                "enemyName":"name",
+                "enemyHP": 200,
+                "enemyAttack": 10,
+                "enemyDefense": 10,
+        }]
+
+
+
+}
