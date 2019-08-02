@@ -24,7 +24,7 @@ class Merit extends commando.Command{
         if(message.author.id === person.id){
             message.delete();
             message.say(`${message.author} is trying to do bamboozle! Dont make Doggo Angry! :angry:`).then(m => m.delete(60000))
-            let chance = Math.floor(Math.random() * 20) + 1;
+            let chance = Math.floor(Math.random() * 15) + 1;
             if(chance === 3){
                 database[doggo]["mood"] = 'mad';
                 let data = JSON.stringify(database);  
@@ -68,7 +68,7 @@ class Merit extends commando.Command{
                     break;
                 }
             case "mad":
-                     failure = Math.floor(Math.random() * 5) + 1;
+                    failure = Math.floor(Math.random() * 5) + 1;
                     if(failure === 1){
                     message.say(`NO! Merit Points for ${person.username}`).then(m => m.delete(60000)); 
                     break;

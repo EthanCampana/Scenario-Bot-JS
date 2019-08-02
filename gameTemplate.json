@@ -1,8 +1,8 @@
 SCENARIO BOT ALPHA v0.1
  {
     "Title": "Title of the cenario",
-    "Story": ["The actual Story of the Scenario.", 
-              "Newlines are needed to keep track of stories make sure you create multiple lines for each story"],
+    "Story": ["The actual Story of the Scenario.",
+        "Newlines are needed to keep track of stories make sure you create multiple lines for each story"],
     "Options": {
                 //How Long should each player have for their turn
                 "timer": 60,
@@ -18,6 +18,8 @@ SCENARIO BOT ALPHA v0.1
                         "Attack": ["minAttack","maxAttack"],
                         "Defense": ["minDefense","maxDefense"]
                 }
+
+                
 
                 },
         //Predefined players are stored here. Custom made Players will also be stored here once created
@@ -38,6 +40,13 @@ SCENARIO BOT ALPHA v0.1
                 "enemyHP": 200,
                 "enemyAttack": 10,
                 "enemyDefense": 10,
+        }],
+
+        "Battle": [{
+                //Line the battle occurs on
+                "lineOccurs": 2,
+                //
+                "enemyID": [1,2] 
         }]
 
 

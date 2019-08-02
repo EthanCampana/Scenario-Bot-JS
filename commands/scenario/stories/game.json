@@ -1,13 +1,16 @@
 
  {
     "Title": "Title of the scenario",
-    "Story": ["The actual Story of the Scenario.", 
-              "Newlines are needed to keep track of stories make sure you create multiple lines for each story"],
+    "Story": ["Test Scenario", 
+              "Newlines are needed to keep track of stories make sure you create multiple lines for each story",
+                "A PLAYERS walks down a hill...",
+                "he falls into a well..",
+                 "he is dead.."],
     "Options": {
                
                 "timer": 60,
 
-                "minPlayer": 2,
+                "minPlayer": 1,
   
                 "maxPlayer": 10,
 
@@ -26,10 +29,15 @@
 
         "Enemies": [{
                 "enemyID": 1,
-                "enemyName":"name",
+                "enemyName":"Slime",
                 "enemyHP": 200,
                 "enemyAttack": 10,
                 "enemyDefense": 10
+        }],
+        "Battle": [{
+               
+                "lineOccurs": 4,
+                "enemyID": [1]
         }]
 
 

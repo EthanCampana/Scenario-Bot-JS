@@ -12,8 +12,6 @@ class Pet extends commando.Command{
     }
 
     async run(message, args){
-      message.say(global.newstring)
-      console.log(client);
     }
 
 }

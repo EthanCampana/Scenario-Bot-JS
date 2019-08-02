@@ -15,10 +15,11 @@ class CreatePlayer extends commando.Command{
     }
 
     async run(message,{Name}){
+    if(global.scenario.Options == undefined){
+        message.say("NO GAME");
+        return;
+    }
     if(global.scenario.Options.canCreate){
-
-
-
         let player = {   
             "playerID": message.author.id,
             "playerName": `${Name}`,
@@ -27,13 +28,14 @@ class CreatePlayer extends commando.Command{
             "playerDefense": helpful.Range(global.scenario.Options.canCreateOptions.Defense[0],global.scenario.Options.canCreateOptions.Defense[1])
     }
 
-       helpful.addUser(player);
-        
+       global.scenario.Players.push(player);
+       let swap = function(array,index){array[index].playerID = "";return;};
+       helpful.findSwap(message,"playerID", message.author.id, global.scenario.Players, swap);
+    
         message.say("Player Created!");
 
     return;
     }
-
     message.say("Player cannot not be created!");
 
 

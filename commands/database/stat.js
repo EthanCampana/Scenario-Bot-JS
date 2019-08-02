@@ -24,7 +24,7 @@ class Stats extends commando.Command{
 	.addBlankField()
 	.addField('Merits', `${database[`${message.author.id}`]['merits']}`, true)
 	.addField('Demerits', `${database[`${message.author.id}`]['demerits']}`, true)
-	.addField('Inventory', `none`, true)
+	.addField('Inventory', `${JSON.stringify(database[`${message.author.id}`].inventory)}`, true)
     
     message.say(exampleEmbed).then(m => m.delete(20000));
 

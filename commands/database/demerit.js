@@ -55,7 +55,7 @@ class Demerit extends commando.Command{
         switch(mood){
 
             case "happy":
-                 failure = Math.floor(Math.random() * 9) + 1;
+                 failure = Math.floor(Math.random() * 7) + 1;
                 if(failure === 1){
                 message.say(`Nah I dont think so B`).then(m => m.delete(60000)); 
                 break; 
@@ -70,7 +70,7 @@ class Demerit extends commando.Command{
                     break;
                 }
             case "mad":
-                     failure = Math.floor(Math.random() * 20) + 1;
+                    failure = Math.floor(Math.random() * 20) + 1;
                     if(failure === 1){
                     message.say(`Nah I dont think so B`).then(m => m.delete(60000));
                     break; 
