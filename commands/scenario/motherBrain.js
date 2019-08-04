@@ -1,11 +1,17 @@
 const helpful = require('./../functions/helpful.js');
 global.scenario = {}
 class motherBrain {
-
+    
+    
+    
     constructor(message, scenario,){
         this.message = message;
         this.scenario = scenario;
         this.player = null;
+        this.battletext = ["A raging battle is about to brew", "Unexpected foes have been encountered", "PLAYERS can't escape from clashing with foes","A battle is about to commence"];
+        this.Time = 0;
+        this.turnorder = []
+        
     }
     
     deletePlayers(){
@@ -30,7 +36,9 @@ class motherBrain {
         let turnorder = [];
         this.scenario.Players.forEach((value, index, array) =>{turnorder.push(value)})
         for( let i=0; i < this.scenario.Battle[battleindex].enemyID.length; i++){
-            this.scenario.Enemies.forEach((value, index, array) => {if(this.scenario.Battle[battleindex].enemyID[i] == value.enemyID){turnorder.push(value)}});
+            this.scenario.Enemies.forEach((value, index, array) => {if(this.scenario.Battle[battleindex].enemyID[i] == value.enemyID){
+                this.message.say(`${value.enemyName} has appeared!`)
+                turnorder.push(value);}});
         }
         turnorder = helpful.randomnize(turnorder);
         return turnorder;
@@ -54,6 +62,21 @@ class motherBrain {
         let playablecast = array.filter((value, index, array)=> {return value.isAlive == true;});
        return playablecast;
     }
+    //Gets all the names of the Enemies in the current battle
+    getEnemyName(){
+        let text =""
+        this.turnorder.forEach((value, index, array) => {
+        if (value.Type == "Enemy"){
+            text += value.enemyName + "\n";
+        }
+        })
+        return text
+    }
+    //Checks to see if the Enemy the player wants to attack is in the battle
+    checkAttack(name){
+        let checked = this.turnorder.some((value, index, array) => {return value.enemyName == name;});
+        return checked;
+    }
 
     checkBattleStatus(array){
        let isPlayersAlive = array.some((value, index, array) => {return value.Type == "Player";});
@@ -67,39 +90,85 @@ class motherBrain {
        return false;
     }
 
+
+    normalize(player){
+        if(player.hasDefened == true){
+            player.hasDefened = false;
+            player.playerDefense /=2;
+            return player;
+        }
+    }
+
+    
     //PLAYERS TURN ALL PLAYER OPTIONS GO HERE
     async playerAct(player){
         this.player = player;
-        let filter = player => this.player.playerID === this.message.author.id;
+        this.logging(this.player);
+        let filter = message => this.player.playerID === message.author.id;
         let waittime = 5;
+        let action = "";
         var optionChosen = false;
         await this.message.say(`${player.playerName} it is your turn`);
-        await this.message.say(`Attack    Run      Defend`);
+        await this.message.say(`Attack      Run      Defend`);
         do{
-            await this.message.channel.awaitMessages(filter,{max: 1, time: 150000000}).then(collected =>{
+           await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
                 if(waittime == 0){
-                   console.log("turn has been skipped");
+                    this.logging("turn has been skipped");
                    optionChosen = true;
                  return;
                 }
                 if(collected.first() == undefined){
                     waittime -=1;
-                    console.log("undefined was passed nothing was said")
+                    this.logging("undefined was passed nothing was said")
                     return;
                 }
-                let action = collected.first().content;
-                if(action.toUpperCase() === "ATTACK"){
-                    player.attackEnemy(this.scenario.Enemies[0],this.scenario.Enemies,this.message);
-                    optionChosen = true;
-                    return;
-                }
-                waittime -=1
+                 action = collected.first().content;
+                 waittime -=1
                 
             });
+            if(action.toUpperCase() === "Defend"){this.player.defend(this.message); optionChosen = true;}
+            if(action.toUpperCase() === "ATTACK"){
+               await this.attackOptions(); 
+                optionChosen = true;
+            }
         }
         while(optionChosen == false)
-        console.log("TURN ENDED")
+        this.logging("TURN ENDED")
     }
+    ///ATTACK SUBMENU
+   async attackOptions(){
+        this.logging("Sub-Menu Opened")
+        let chance = 2;
+        let option = false;
+        let filter = message => this.player.playerID === message.author.id;
+        this.message.say("Enemies:");
+        this.message.say(this.getEnemyName());
+        do{
+            await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
+                if(chance == 0){
+                    this.logging("No more chances left skipping turn!");
+                    option = true;
+                    return;
+                 }
+                if(collected.first() == undefined){
+                    chance -=1;
+                    return;
+                }
+                let enemyName = collected.first().content;
+                if(this.checkAttack(enemyName)){
+                    this.player.attackEnemy(enemyName,this.scenario.Enemies,this.message);
+                    option = true;
+                    return;
+                }
+                this.logging("Enemy not here " + enemyName);
+                chance -=1;
+            });
+        }
+        while(option == false)
+        this.logging("Sub-Menu Closed");
+    }
+
+
     //ENEMY AI BASICALLY NEEDS TO BE UPDATED
     enemyAct(enemy){
         enemy.attackPlayer(this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)], this.scenario.Players,this.message);
@@ -144,12 +213,15 @@ class motherBrain {
 
   //MAIN FUNCTION WHAT STARTS THE GAME
    async run(){
+
         this.logging("Checking Requirements.....") ;
         let checked = this.checkConditions();
         if(checked == false){ 
             this.logging("Game start requirements not met!");
             return;}
+        this.message.say("Setting the stage for this grand story to be told....");
         this.logging("Deleting Players.....");
+        this.Time = this.scenario.Options.timer * 1000;
         this.deletePlayers();
         // MAIN Game Loop
         this.logging("Game Started");
@@ -160,9 +232,10 @@ class motherBrain {
             if(isBattle){
                 this.logging("Setting up current Battle....");
                 let battleindex = this.getBattleIndex(i);
-                let turnorder = this.createTurns(battleindex);
+                this.turnorder = this.createTurns(battleindex);
                 this.logging('Commencing Battle');
-                await this.commenceBattle(turnorder);
+                this.message.say(this.battletext[Math.floor(Math.random() * this.battletext.length)]);
+                await this.commenceBattle(this.turnorder);
             }
             this.message.say(line);
         }

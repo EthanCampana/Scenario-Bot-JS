@@ -9,6 +9,8 @@
         "discord.js-commando": "^0.10.0",
         "needle": "^2.3.0",
         "node-fetch": "^2.6.0",
-        "osmosis": "^1.1.10"
+        "osmosis": "^1.1.10",
+        "package-lock.json": "^1.0.0",
+        "package.json": "^2.0.1"
     }
 }

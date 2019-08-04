@@ -30,7 +30,7 @@
         "Enemies": [{
                 "enemyID": 1,
                 "enemyName":"Slime",
-                "enemyHP": 200,
+                "enemyHP": 2000,
                 "enemyAttack": 10,
                 "enemyDefense": 10
         }],

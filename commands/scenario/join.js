@@ -33,7 +33,7 @@ class Join extends commando.Command{
             var waitattempts = 5;
             do{
                 let filter = m => m.author.id === message.author.id;
-                await message.channel.awaitMessages(filter,{max: 1, time: 2000}).then(collected =>{
+                await message.channel.awaitMessages(filter,{max: 1, time: 200000}).then(collected =>{
                 if(waitattempts == 0){
                     chosen = true;
                     return;
@@ -46,12 +46,13 @@ class Join extends commando.Command{
                 if(collected.first().content){
                     let choice = collected.first().content;
                     let chosenindex = global.scenario.Players.findIndex((value, index, array) =>{
-                        if(value.playerID  !== ''){return;}
+                        if(value.playerID  !== null){return;}
                         return value.playerName == choice;})
                     if(chosenindex > -1){
                         let swap = function(array,index){array[index].playerID = "";return;};
                         helpful.findSwap(message,"playerID", message.author.id, global.scenario.Players, swap);
                         global.scenario.Players[chosenindex].playerID = message.author.id;
+                        message.say("Chosen")
                         return chosen = true;
                     }
                     message.say("Player is not available or does not exist! You have " + waitattempts.toString() + "  attempts remaining." );

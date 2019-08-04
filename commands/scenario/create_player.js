@@ -27,11 +27,10 @@ class CreatePlayer extends commando.Command{
             "playerAttack": helpful.Range(global.scenario.Options.canCreateOptions.Attack[0],global.scenario.Options.canCreateOptions.Attack[1]),
             "playerDefense": helpful.Range(global.scenario.Options.canCreateOptions.Defense[0],global.scenario.Options.canCreateOptions.Defense[1])
     }
-
-       global.scenario.Players.push(player);
+        global.scenario.Players.push(player);
        let swap = function(array,index){array[index].playerID = "";return;};
        helpful.findSwap(message,"playerID", message.author.id, global.scenario.Players, swap);
-    
+       
         message.say("Player Created!");
 
     return;
