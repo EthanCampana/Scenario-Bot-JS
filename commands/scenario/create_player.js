@@ -16,26 +16,25 @@ class CreatePlayer extends commando.Command{
 
     async run(message,{Name}){
     if(global.scenario.Options == undefined){
-        message.say("NO GAME");
+        message.say(`${message.author} NO GAME LOADED`).then(m => {m.delete(30000);});
         return;
     }
     if(global.scenario.Options.canCreate){
         let player = {   
             "playerID": message.author.id,
             "playerName": `${Name}`,
-            "playerHP": helpful.Range(global.scenario.Options.canCreateOptions.HP[0],global.scenario.Options.canCreateOptions.HP[1]),
-            "playerAttack": helpful.Range(global.scenario.Options.canCreateOptions.Attack[0],global.scenario.Options.canCreateOptions.Attack[1]),
-            "playerDefense": helpful.Range(global.scenario.Options.canCreateOptions.Defense[0],global.scenario.Options.canCreateOptions.Defense[1])
+            "HP": helpful.Range(global.scenario.Options.canCreateOptions.HP[0],global.scenario.Options.canCreateOptions.HP[1]),
+            "Attack": helpful.Range(global.scenario.Options.canCreateOptions.Attack[0],global.scenario.Options.canCreateOptions.Attack[1]),
+            "Defense": helpful.Range(global.scenario.Options.canCreateOptions.Defense[0],global.scenario.Options.canCreateOptions.Defense[1])
     }
-        global.scenario.Players.push(player);
+       global.scenario.Players.push(player);
        let swap = function(array,index){array[index].playerID = "";return;};
        helpful.findSwap(message,"playerID", message.author.id, global.scenario.Players, swap);
-       
-        message.say("Player Created!");
+       message.say("Player Created!").then(m => {m.delete(30000);});
 
     return;
     }
-    message.say("Player cannot not be created!");
+    message.say("Player cannot not be created!").then(m => {m.delete(30000);});
 
 
     }

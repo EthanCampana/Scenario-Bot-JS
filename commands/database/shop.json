@@ -1,9 +1,0 @@
-{
-    "Items":[
-        {"name": "DROP-IT", "description": "Use this to drop the current conversation or arguement", "cost":75},
-        {"name": "Dinner Please", "description": "Use this specialty coupon to have your s/o buy you dinner of any kind ;)","cost": 840},
-        {"name": "Self-Me", "description": "Use this receive a selfie of the person you desire!","cost": 55},
-        {"name":"Truth-Serum", "description":"Use this to receive the truth outta someone 100% garuneteed. If they lie they die", "cost": 100}]
-
-
-}

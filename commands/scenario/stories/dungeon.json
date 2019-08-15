@@ -26,9 +26,9 @@
         "Players": [{
             "playerID": null,
             "playerName":"The Hero",
-            "playerHP": 750,
-            "playerAttack" : 70,
-            "playerDefense" : 35
+            "HP": 750,
+            "Attack" : 70,
+            "Defense" : 35
 
         }
             
@@ -37,44 +37,44 @@
         "Enemies": [{
                 "enemyID": 1,
                 "enemyName":"Blue Slime",
-                "enemyHP": 200,
-                "enemyAttack": 20,
-                "enemyDefense": 10
+                "HP": 200,
+                "Attack": 20,
+                "Defense": 10
         },
             {
                 "enemyID": 2,
                 "enemyName":"Green Slime",
-                "enemyHP": 350,
-                "enemyAttack": 10,
-                "enemyDefense": 10
+                "HP": 350,
+                "Attack": 10,
+                "Defense": 10
             },
             {
                 "enemyID": 3,
                 "enemyName":"Skeleton",
-                "enemyHP": 150,
-                "enemyAttack": 25,
-                "enemyDefense": 10 
+                "HP": 150,
+                "Attack": 25,
+                "Defense": 10 
             },
             {
                 "enemyID": 4,
                 "enemyName":"Ghoul 1",
-                "enemyHP": 150,
-                "enemyAttack": 35,
-                "enemyDefense": 10 
+                "HP": 150,
+                "Attack": 35,
+                "Defense": 10 
             },
             {
                 "enemyID": 6,
                 "enemyName":"Ghoul 2",
-                "enemyHP": 150,
-                "enemyAttack": 35,
-                "enemyDefense": 10 
+                "HP": 150,
+                "Attack": 35,
+                "Defense": 10 
             },
             {
                 "enemyID": 7,
                 "enemyName":"Great Orc",
-                "enemyHP": 500,
-                "enemyAttack": 20,
-                "enemyDefense": 30 
+                "HP": 500,
+                "Attack": 20,
+                "Defense": 30 
             } ],
         "Battle": [{
                

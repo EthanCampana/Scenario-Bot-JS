@@ -6,7 +6,7 @@ class Debug extends commando.Command{
     constructor(client){
         super(client,{
            name: 'debug',
-           group: 'doggo',
+           group: 'scenario',
            memberName: 'debug',
            description: 'Debugging for the game'
 

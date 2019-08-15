@@ -9,25 +9,25 @@ exports = module.exports  = {
             let playerattack =function playerAttack(Target,array,message){
                 let targetindex = array.findIndex((value, index, array) => {return value.enemyName == Target;})
                 //calculate damage here
-                let damage =  (this.playerAttack * 3) - (array[targetindex].enemyDefense *2);
+                let damage =  (this.Attack * 3) - (array[targetindex].Defense *2);
                 console.log(damage);
-                message.say(`you did ${damage} damage to ${array[targetindex].enemyName}`);
-                array[targetindex].enemyHP -= damage;
-                if(array[targetindex].enemyHP  < 0){ array[targetindex].isAlive = false; }
+                message.say(`${this.playerName} did ${damage} damage to ${array[targetindex].enemyName}`).then(m => {m.delete(100000);});
+                array[targetindex].HP -= damage;
+                if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
             }
             let defend = function Defend(message)
             {
-                message("You have defended");
-                this.playerDefense *=2;
+                message.say(`Defense Mode Activated`).then(m => {m.delete(100000);});
+                this.Defense *=2;
                 this.hasDefended = true;
             }
             let enemyattack = function monsterAttack(Target,array,message){
                 let targetindex = array.findIndex((value, index, array) => {return value == Target;})
-                let damage =   (this.enemyAttack * 3) - (array[targetindex].playerDefense * 2);
+                let damage =   (this.Attack * 3) - (array[targetindex].Defense * 2);
                 console.log(damage);
-                message.say(`Monster did ${damage} to ${array[targetindex].playerName}`);
-                array[targetindex].playerHP -= damage;
-                if(array[targetindex].playerHP  < 0){ array[targetindex].isAlive = false; }
+                message.say(`${this.enemyName} did ${damage} to ${array[targetindex].playerName}`).then(m => {m.delete(100000);});
+                array[targetindex].HP -= damage;
+                if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
             }
             global.scenario.Players.forEach((value, index, array) => {
                 value.defend = defend;
@@ -57,7 +57,7 @@ exports = module.exports  = {
                     }
                     if(index > -1){
                         callback(array,index);
-                        message.say("You have swapped characters!");
+                        message.say("You have swapped characters!").then(m => {m.delete(100000);});
                         return;
                     }
             return;
@@ -65,7 +65,9 @@ exports = module.exports  = {
 
         "showCharacter": function(embed,array){
             array.forEach((value, index, array)=> {
-                embed.addField("Player " + index.toString(),JSON.stringify(value));
+                embed.addField("Player " + index.toString(), "Name: " + JSON.stringify(value.playerName) + "\n HP: " + JSON.stringify(value.HP) + "\n Attack: " +
+                JSON.stringify(value.Attack) + "\n Defense:" + JSON.stringify(value.Defense)
+                );
             })
 
             
