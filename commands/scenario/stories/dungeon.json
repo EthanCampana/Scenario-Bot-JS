@@ -1,6 +1,7 @@
 
  {
     "Title": "The Hero's Dungeon",
+    "Author": "The Creator",
     "Story": ["There was once a hero that protected the land from monsters that brew in the deep dungeon.","Once that hero was gone there was no one left to protect us.",
     "Many have stepped up to the plate but few have filled the shoes until you came along.","You will be are next hero..","You entered the creaky tunnel that lead to the entrance to the tunnel",
 "You look up to see two goopy things drip from the ceiling","You open the entrance to the dungeon and begin to descend", "You manage to dodge through traps and enemies","At the end you see a giant door",
@@ -28,7 +29,27 @@
             "playerName":"The Hero",
             "HP": 750,
             "Attack" : 70,
-            "Defense" : 35
+            "Defense" : 35,
+            "MP": 100,
+            "Skills":[
+                { 
+                    "type": "Buff",
+                    "name": "Heal",
+                    "stat": "HP",
+                    "length": 0,
+                    "cost": 10,
+                    "amount": 25
+
+                },
+                {
+                    "type": "Physical",
+                    "name": "Hatchet Man",
+                    "damage":  500,
+                    "cost": 50,
+                    "hit": "The Hero swings his sword with all his might and drops it on his opponent"
+                }
+            ]
+            
 
         }
             

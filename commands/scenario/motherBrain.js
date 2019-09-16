@@ -1,4 +1,5 @@
 const helpful = require('./../functions/helpful.js');
+
 global.scenario = {}
 class motherBrain {
     
@@ -14,6 +15,15 @@ class motherBrain {
         
     }
     
+    printSkills(player){
+        let text = "";
+        player.Skills.forEach((value)=>{
+             text += value.name +  "  MP: " + value.cost + "\n";
+         })
+         text += `Current MP: ${this.player.MP}`;
+        return text;
+    }
+
     deletePlayers(){
         let playablecast = this.scenario.Players.filter((value, index, array)=> {return value.playerID !== "";});
         this.scenario.Players = playablecast;    
@@ -61,7 +71,7 @@ class motherBrain {
     whoAlive(array){
         let playablecast = array.filter((value, index, array)=> {return value.isAlive == true;});
         this.turnorder = playablecast
-       return playablecast;
+        return playablecast;
     }
     //Gets all the names of the Enemies in the current battle
     getEnemyName(){
@@ -73,22 +83,53 @@ class motherBrain {
         })
         return text
     }
+    getPlayerName(){
+        let text  =""
+        this.turnorder.forEach((value, index, array) => {
+        if (value.Type == "Player"){
+            text += value.playerName + "\n";
+        }
+        })
+        return text
+
+
+    }
     //Checks to see if the Enemy the player wants to attack is in the battle
     checkAttack(name){
-        let checked = this.turnorder.some((value, index, array) => {return value.enemyName == name;});
+        let checked = this.turnorder.some((value, index, array) => {return value.enemyName.toUpperCase() == name.toUpperCase();});
         return checked;
     }
-
+    checkBuff(name){
+        let checked = this.turnorder.some((value, index, array) => {return value.playerName.toUpperCase() == name.toUpperCase();});
+        return checked;
+    }
     checkBattleStatus(array){
        let isPlayersAlive = array.some((value, index, array) => {return value.Type == "Player";});
        let isMonstersAlive = array.some((value, index, array) => {return value.Type == "Enemy";});
+       let hasFled = array.some((value,index,array)=> {return value.hasFled == false;});
        if(isMonstersAlive == false){
            return true;
        }
        if(isPlayersAlive == false){
            return true;
        }
+       if(hasFled == false){
+           let Line = "PLAYERS have successfully fled";
+           Line = helpful.replaceKeyword('PLAYERS', Line ,this.scenario.Players);
+           this.message.say(Line);
+           return true;
+       }
        return false;
+    }
+    checkSkills(){
+        if(! this.player.hasOwnProperty('Skills')){
+            return false;
+        }
+        if(this.player.Skills.length == 0){
+            return false;
+        }
+        return true;
+
     }
 
     normalize(player){
@@ -111,11 +152,12 @@ class motherBrain {
         let action = "";
         var optionChosen = false;
         await this.message.say(`${player.playerName} it is your turn`).then(m => {m.delete(this.Time);});
-        await this.message.say(`Attack      Run      Defend`).then(m => {m.delete(this.Time);});
         do{
+         await this.message.say(`Attack    Skill      Defend     Run: ${waittime}`).then(m => {m.delete(this.Time);});
            await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
+             
                 if(waittime == 0){
-                    this.logging("turn has been skipped");
+                    this.logging("turn has been skipped"); 
                    optionChosen = true;
                  return;
                 }
@@ -128,10 +170,26 @@ class motherBrain {
                  waittime -=1
                 
             });
+            if(action.toUpperCase() === "RUN"){
+                optionChosen = true;
+                let num = helpful.Range(0,100);
+                if(num == 1){
+                    this.player.hasFled = true;
+                    this.message.say(`${this.player.playerName} has fled from the battle`);
+                }
+                this.message.say(`${this.player.playerName} tried to flee from battle but failed!`);
+            }
             if(action.toUpperCase() === "DEFEND"){player.defend(this.message); optionChosen = true;}
             if(action.toUpperCase() === "ATTACK"){
                await this.attackOptions(); 
                 optionChosen = true;
+            }
+            if(action.toUpperCase() === "SKILL"){  
+                if(this.checkSkills()){
+                    optionChosen = await this.skillOptions();
+                    return;
+                }
+                this.message.say("You do not have any skills..").then(m => {m.delete(this.Time);});
             }
         }
         while(optionChosen == false)
@@ -170,6 +228,130 @@ class motherBrain {
         }
         while(option == false)
         this.logging("Sub-Menu Closed");
+    }
+    //Skills Menu
+    async skillOptions(){
+        this.logging("Skill Sub-Menu Opened")
+        let chance = 3;
+        let option = false;
+        let filter = message => this.player.playerID === message.author.id;
+        let skills = this.player.Skills
+        let skill = 0;
+        let hasexited = false;
+        await  this.message.say("Skills:").then(m => {m.delete(this.Time);});
+        await this.message.say(this.printSkills(this.player)).then(m => {m.delete(this.Time);});
+        do{
+            await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
+                if(chance == 0){
+                    this.logging("No more chances left skipping turn!");
+                    option = true;
+                    return;
+                 }
+                if(collected.first() == undefined){
+                    chance -=1;
+                    return;
+                }
+                let skillName = collected.first().content;
+                if(skillName.toUpperCase() == "BACK"){
+                    hasexited = true;
+                    option = true;
+                    return;
+                }
+                skill = skills.findIndex((value,index,array) => { return value.name.toUpperCase() == skillName.toUpperCase()});
+                if(skill == -1){
+                    this.message.say("No Skill of such Name").then(m => {m.delete(this.Time);});
+                    this.logging("No Skill of such name " + skillName);
+                    chance -=1;
+                    return;
+                }
+               
+            });
+            if(skill > -1){
+                if(skills[skill].cost > this.player.MP ){
+                    this.message.say("You don't have enough MP to use this Skill").then(m => {m.delete(this.Time);}); 
+                    return;
+                }
+                option = await this.chooseSkillTarget(skill);
+                }
+        }
+        while(option == false)
+        if(hasexited){
+            option = false;
+            return option;
+        }
+        return option;
+    }
+
+    //Target Menu For Using a Skill
+    async chooseSkillTarget(index){
+        this.logging("Skill Target Menu Opened")
+        let chance = 3;
+        let option = false;
+        let filter = message => this.player.playerID === message.author.id;
+        let type = this.player.Skills[index].type;
+        console.log(type);
+        switch(type){
+            case "Buff":
+                await this.message.say(this.getPlayerName()).then(m => {m.delete(this.Time);});
+                do{
+                await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
+                    if(chance == 0){
+                        this.logging("No more chances left skipping turn!");
+                        option = true;
+                        return;
+                     }
+                    if(collected.first() == undefined){
+                        chance -=1;
+                        return;
+                    }
+                    let playerName = collected.first().content;
+                    if(this.checkBuff(playerName)){
+                    //Player Uses Skill Here on Player
+                        this.message.say(`${this.player.playerName} used ${this.player.Skills[index].name} on ${playerName}`).then(m => {m.delete(this.Time);});
+                        this.player.useSkill(index,playerName,this.scenario.Players,this.message)
+                        option = true;
+                        return;
+                    }
+                    this.message.say("No Player named " + playerName).then(m => {m.delete(this.Time);});
+                    this.logging("No Player named " + playerName);
+                    chance -=1;      
+                    });
+                    }
+                while(option == false)
+                break;
+            case "Physical":
+                await this.message.say(this.getEnemyName()).then(m => {m.delete(this.Time);});
+                do{  
+                await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
+                    if(chance == 0){
+                        this.logging("No more chances left skipping turn!");
+                        option = true;
+                        return;
+                     }
+                    if(collected.first() == undefined){
+                        chance -=1;
+                        return;
+                    }
+                    let enemyName = collected.first().content;
+                    if(this.checkAttack(enemyName)){
+                       //Player Uses Skill Here
+                        this.message.say(`${this.player.playerName} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
+                        this.message.say(this.player.Skills[index].hit).then(m => {m.delete(this.Time);});
+                        this.player.useSkill(index,enemyName,this.scenario.Enemies,this.message)
+                        option = true;
+                        return;
+                    }
+                    this.message.say("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
+                    this.logging("Enemy not here " + enemyName);
+                    chance -=1;
+                });
+                }
+                while(option == false)
+                break;
+        }
+        return option;
+
+
     }
 
 
@@ -231,9 +413,7 @@ class motherBrain {
         if(checked == false){ 
             this.logging("Game start requirements not met!");
             return;}
-        this.message.say("Setting the stage for this grand story to be told....").then(m => {m.delete(this.Time);});
         this.logging("Deleting Players.....");
-        
         this.deletePlayers();
         // MAIN Game Loop
         this.logging("Game Started");

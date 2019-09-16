@@ -1,50 +1,88 @@
 //LIST OF HELPFUL FUNCTIONS
 exports = module.exports  = {
         //array of functions to be loaded in easier
-        "playerFunctions": {},
-        "Range": function(min, max) {
-            return Math.floor(Math.random() * (max - min + 1) ) + min;
-          },
-        "Update":function(){
-            let playerattack =function playerAttack(Target,array,message){
-                let targetindex = array.findIndex((value, index, array) => {return value.enemyName == Target;})
+        "playerFunctions": {
+            "useSkill": function(index, Target, array, message){
+                let skill = this.Skills[index];
+                let type = skill.type;
+                if(type == "Buff"){
+                    this.MP -= skill.cost;
+                    if(skill.length > 0){
+                        //Buffs that last longer than one turn code here... Create an Array like BuffName, Turncount. Buffname Should start at index 1, position 2.
+                    }
+                    let targetStat = skill.stat;
+                    let targetindex = array.findIndex((value, index, array) => {return value.playerName.toUpperCase() == Target.toUpperCase();})
+                    array[targetindex][targetStat] += skill.amount;
+                }
+                if(type == "Physical"){
+                    this.MP -= skill.cost;
+                    let targetindex = array.findIndex((value, index, array) => {return value.enemyName.toUpperCase() == Target.toUpperCase();})
+                    message.say(`${this.playerName} inflicted ${skill.damage} to ${Target}`)
+                    array[targetindex].HP -= skill.damage;
+                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
+                }
+            },
+
+            "PlayerAttack": function playerAttack(Target,array,message){
+                let targetindex = array.findIndex((value, index, array) => {return value.enemyName.toUpperCase() == Target.toUpperCase();})
                 //calculate damage here
                 let damage =  (this.Attack * 3) - (array[targetindex].Defense *2);
                 console.log(damage);
                 message.say(`${this.playerName} did ${damage} damage to ${array[targetindex].enemyName}`).then(m => {m.delete(100000);});
                 array[targetindex].HP -= damage;
                 if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
-            }
-            let defend = function Defend(message)
-            {
-                message.say(`Defense Mode Activated`).then(m => {m.delete(100000);});
+            },
+
+            "Defend": function Defend(message)
+            {  
+            if(this.Type == 'Player'){
+                message.say(`${this.playerName} has Defended!`).then(m => {m.delete(100000);});
                 this.Defense *=2;
                 this.hasDefended = true;
+                return;
             }
-            let enemyattack = function monsterAttack(Target,array,message){
+            message.say(`${this.enemyName} has Defended!`).then(m => {m.delete(100000);});
+            this.Defense *=2;
+            this.hasDefended = true;
+      
+            
+            
+            },
+                
+            "EnemyAttack": function monsterAttack(Target,array,message){
                 let targetindex = array.findIndex((value, index, array) => {return value == Target;})
                 let damage =   (this.Attack * 3) - (array[targetindex].Defense * 2);
                 console.log(damage);
                 message.say(`${this.enemyName} did ${damage} to ${array[targetindex].playerName}`).then(m => {m.delete(100000);});
                 array[targetindex].HP -= damage;
                 if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
+
+
+
             }
+
+            },
+            
+        "Range": function(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) ) + min;
+         },
+        "Update":function(){
             global.scenario.Players.forEach((value, index, array) => {
-                value.defend = defend;
-                value.attackEnemy = playerattack; 
+                value.defend = this.playerFunctions.Defend;
+                value.useSkill = this.playerFunctions.useSkill;
+                value.attackEnemy = this.playerFunctions.PlayerAttack;
+                value.currentBuffs = [null]; // Moves that buff characters 
                 value.Type = "Player"; 
                 value.isAlive = true;
-                value.hasDefended = false; });
+                value.hasDefended = false;
+                value.hasFled = false; });
             global.scenario.Enemies.forEach((value, index, array) => {
-              value.attackPlayer = enemyattack;
+              value.attackPlayer = this.playerFunctions.EnemyAttack;
+              value.currentBuffs = [null]; 
               value.Type = "Enemy";
-              value.defend = defend;
+              value.defend = this.playerFunctions.Defend;
               value.isAlive = true;
               value.hasDefended = false; });
-
-
-
-
         },
         "findSwap" : function(message,compare,contrast,array,callback){
                     if(array.length == 1){
@@ -65,6 +103,7 @@ exports = module.exports  = {
 
         "showCharacter": function(embed,array){
             array.forEach((value, index, array)=> {
+                index +=1;
                 embed.addField("Player " + index.toString(), "Name: " + JSON.stringify(value.playerName) + "\n HP: " + JSON.stringify(value.HP) + "\n Attack: " +
                 JSON.stringify(value.Attack) + "\n Defense:" + JSON.stringify(value.Defense)
                 );
