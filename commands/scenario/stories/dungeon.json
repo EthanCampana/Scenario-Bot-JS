@@ -1,0 +1,150 @@
+
+ {
+    "Title": "The Hero's Dungeon",
+    "Author": "The Creator",
+    "Story": ["There was once a hero that protected the land from monsters that brew in the deep dungeon.","Once that hero was gone there was no one left to protect us.",
+    "Many have stepped up to the plate but few have filled the shoes until you came along.","You will be are next hero..","You entered the creaky tunnel that lead to the entrance to the tunnel",
+"You look up to see two goopy things drip from the ceiling","You open the entrance to the dungeon and begin to descend", "You manage to dodge through traps and enemies","At the end you see a giant door",
+"Your enter and you meet the biggest enemy before you","As the enemy is defeated the goddess uses her magic to transfer you home"],
+    "Options": {
+               
+                "timer": 60,
+                
+                "textSpeed": 1000,
+                
+                "minPlayer": 1,
+  
+                "maxPlayer": 1,
+
+                "canCreate": false,
+
+                "canCreateOptions": {
+                        "HP": [100,1000],
+                        "Attack": [10,75],
+                        "Defense": [10,67]
+                }
+
+                },
+       
+        "Players": [{
+            "playerID": null,
+            "Name":"The Hero",
+            "HP": 750,
+            "Attack" : 70,
+            "Defense" : 35,
+            "MP": 100,
+            "Skills":[
+                {
+                    "type": "Magic",
+                    "name": "Fireball",
+                    "stat": "HP",
+                    "cost": 25,
+                    "amount": 45,
+                    "chance": 110,
+                    "Debuff": {
+                        "name": "Burn",
+                        "everyTurn": true,
+                        "stat": "HP",
+                        "length": 5,
+                        "amount": 10
+                    }
+                },
+                { 
+                    "type": "Buff",
+                    "name": "Heal",
+                    "stat": "HP",
+                    "length": 0,
+                    "cost": 10,
+                    "amount": 25
+
+                },
+                {
+                    "type": "Buff",
+                    "name": "Regen",
+                    "stat": "HP",
+                    "length": 5,
+                    "everyTurn": true,
+                    "cost": 25,
+                    "amount": 15
+
+                },
+                {
+                    "type": "Physical",
+                    "name": "Hatchet Man",
+                    "damage": 500,
+                    "cost": 50,
+                    "hit": "The Hero swings his sword with all his might and drops it on his opponent"
+                }
+
+            ]
+            
+
+        }
+            
+        ],
+
+        "Enemies": [{
+                "enemyID": 1,
+                "Name":"Blue Slime",
+                "HP": 200,
+                "Attack": 20,
+                "Defense": 10
+        },
+            {
+                "enemyID": 2,
+                "Name":"Green Slime",
+                "HP": 350,
+                "Attack": 10,
+                "Defense": 10,
+                "image" : "https://heroesravage.com/wp-content/uploads/2018/11/Slime-Idle-Down-13.gif"
+            },
+            {
+                "enemyID": 3,
+                "Name":"Skeleton",
+                "HP": 150,
+                "Attack": 25,
+                "Defense": 10 
+            },
+            {
+                "enemyID": 4,
+                "Name":"Ghoul 1",
+                "HP": 150,
+                "Attack": 35,
+                "Defense": 10 
+            },
+            {
+                "enemyID": 6,
+                "Name":"Ghoul 2",
+                "HP": 150,
+                "Attack": 35,
+                "Defense": 10 
+            },
+            {
+                "enemyID": 7,
+                "Name":"Great Orc",
+                "HP": 500,
+                "Attack": 20,
+                "Defense": 30 
+            } ],
+        "Battle": [{
+               
+                "lineOccurs": 6,
+                "enemyID": [1,2]
+        },
+            {
+                "lineOccurs": 7,
+                "enemyID": [3]
+
+            },
+            {
+                "lineOccurs": 8,
+                "enemyID": [4,6]
+
+            },
+            {
+                "lineOccurs": 9,
+                "enemyID": [7]
+            }
+        
+        ]
+}
