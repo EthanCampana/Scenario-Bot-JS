@@ -9,6 +9,7 @@ class CreatePlayer extends commando.Command{
            group: 'scenario',
            memberName: 'create',
            description: 'Use this command to create a random player for the current scenario. ONLY WORKS IF CUSTOM CHARACTERS ARE ENABLED!',
+           aliases: ['cp'],
            args: [{key: 'Name', prompt: "Name of the character you want to create.", type: "string" }  ]
 
         });

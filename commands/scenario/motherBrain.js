@@ -1,9 +1,6 @@
 const helpful = require('./../functions/helpful.js');
 
-global.scenario = {}
 class motherBrain {
-    
-    
     
     constructor(message, scenario,){
         this.message = message;
@@ -14,7 +11,10 @@ class motherBrain {
         this.turnorder = []
         
     }
-    
+     sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+      
     printSkills(player){
         let text = "";
         player.Skills.forEach((value)=>{
@@ -42,13 +42,16 @@ class motherBrain {
         return false;
     }
     //NEED TO PASS BATTLEINDEX INCASE OF MULTIPLE BATTLES?
-    createTurns(battleindex){
+     createTurns(battleindex){
         let turnorder = [];
         this.scenario.Players.forEach((value, index, array) =>{turnorder.push(value)})
         for( let i=0; i < this.scenario.Battle[battleindex].enemyID.length; i++){
-            this.scenario.Enemies.forEach((value, index, array) => {if(this.scenario.Battle[battleindex].enemyID[i] == value.enemyID){
-                this.message.say(`${value.enemyName} has appeared!`).then(m => {m.delete(this.Time);})
-                turnorder.push(value);}});
+            this.scenario.Enemies.forEach((value, index, array) => {
+                if(this.scenario.Battle[battleindex].enemyID[i] == value.enemyID){
+                turnorder = helpful.enemyAppeared(value,turnorder, this.message);    
+                //turnorder.push(value);
+            }
+        });
         }
         turnorder = helpful.randomnize(turnorder);
         return turnorder;
@@ -67,7 +70,7 @@ class motherBrain {
     logging(text){
         console.log(text); 
     }
-
+    //Checks Which enemies or players are alive in the Turnorder...
     whoAlive(array){
         let playablecast = array.filter((value, index, array)=> {return value.isAlive == true;});
         this.turnorder = playablecast
@@ -78,16 +81,26 @@ class motherBrain {
         let text =""
         this.turnorder.forEach((value, index, array) => {
         if (value.Type == "Enemy"){
-            text += value.enemyName + "\n";
+            text += value.Name + "\n";
         }
         })
         return text
+    }
+    getRandomEnemy(){
+        let enemy;
+        let arr
+        this.turnorder.forEach((value, index, array) => {
+            if (value.Type == "Enemy"){
+                arr.push(value);
+            }
+            });
+      return  arr[Math.floor(Math.random()*arr.length)].Name;
     }
     getPlayerName(){
         let text  =""
         this.turnorder.forEach((value, index, array) => {
         if (value.Type == "Player"){
-            text += value.playerName + "\n";
+            text += value.Name + "\n";
         }
         })
         return text
@@ -96,11 +109,14 @@ class motherBrain {
     }
     //Checks to see if the Enemy the player wants to attack is in the battle
     checkAttack(name){
-        let checked = this.turnorder.some((value, index, array) => {return value.enemyName.toUpperCase() == name.toUpperCase();});
+        if(typeof name ==  undefined){
+            return false;
+        }
+        let checked = this.turnorder.some((value, index, array) => {return value.Name == name;})
         return checked;
     }
     checkBuff(name){
-        let checked = this.turnorder.some((value, index, array) => {return value.playerName.toUpperCase() == name.toUpperCase();});
+        let checked = this.turnorder.some((value, index, array) => {return value.Name.toUpperCase() == name.toUpperCase();});
         return checked;
     }
     checkBattleStatus(array){
@@ -129,29 +145,75 @@ class motherBrain {
             return false;
         }
         return true;
-
+    }
+    checkMonSkill(enemy){
+        if(! enemy.hasOwnProperty('Skills')){
+            return false;
+        }
+        if(enemy.Skills.length == 0){
+            return false;
+        }
+        return true;
     }
 
     normalize(player){
+        if(player.currentBuffs.length > 0){
+          let buffs = player.currentBuffs.filter((value, index, array)=> {return value.length > 0;})
+          player.currentBuffs =  buffs;
+        }
+        if(player.Debuffs.length > 0){
+            let debuffs = player.DeBuffs.filter((value, index, array)=> {return value.length > 0;})
+            player.currentBuffs = debuffs;
+        }
         if(player.hasDefended === true){
             player.hasDefended = false;
             player.Defense /=2;
             return player;
         }
-
+        player = this.applyStatus(player);
         return player
+    }
+    applyStatus(player){
+        if(player.currentBuffs.length > 0){
+            for(let i = 0; i < player.currentBuffs.length; i++ ){
+                let buff = player.currentBuffs[i];
+                if(player.currentBuffs[i].everyTurn){
+                    player[buff.stat] += buff.amount;
+                    this.message.say(`${player.Name} has gained ${buff.amount} ${buff.stat}`);
+                    player.currentBuffs[i].length -=1;
+                }
+                else{
+                    player.currentBuffs[i].length -=1;
+                }
+            }
+        }
+        if(player.Debuffs.length > 0){
+            player.Debuffs.forEach((value, index, array)=> {
+                if(value.everyTurn){
+                    player[value.stat] -= value.amount;
+                    this.message.say(`${player.Name} has lost ${value.amount} ${value.stat} from ${value.name}`);
+                    value.length -=1;
+                }
+                else{
+                    value.length -=1;
+                }
+
+            });
+        }
+        return player;
+
     }
 
     
     //PLAYERS TURN ALL PLAYER OPTIONS GO HERE
     async playerAct(player){
         this.player = this.normalize(player);
-        this.logging(player);
+        //this.logging(player);
         let filter = message => this.player.playerID === message.author.id;
         let waittime = 5;
         let action = "";
         var optionChosen = false;
-        await this.message.say(`${player.playerName} it is your turn`).then(m => {m.delete(this.Time);});
+        await this.message.say(`${player.Name} it is your turn`).then(m => {m.delete(this.Time);});
         do{
          await this.message.say(`Attack    Skill      Defend     Run: ${waittime}`).then(m => {m.delete(this.Time);});
            await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
@@ -175,9 +237,9 @@ class motherBrain {
                 let num = helpful.Range(0,100);
                 if(num == 1){
                     this.player.hasFled = true;
-                    this.message.say(`${this.player.playerName} has fled from the battle`);
+                    this.message.say(`${this.player.Name} has fled from the battle`);
                 }
-                this.message.say(`${this.player.playerName} tried to flee from battle but failed!`);
+                this.message.say(`${this.player.Name} tried to flee from battle but failed!`);
             }
             if(action.toUpperCase() === "DEFEND"){player.defend(this.message); optionChosen = true;}
             if(action.toUpperCase() === "ATTACK"){
@@ -193,7 +255,6 @@ class motherBrain {
             }
         }
         while(optionChosen == false)
-        this.logging(player);
         this.logging("TURN ENDED");
     }
     ///ATTACK SUBMENU
@@ -217,7 +278,7 @@ class motherBrain {
                 }
                 let enemyName = collected.first().content;
                 if(this.checkAttack(enemyName)){
-                    this.player.attackEnemy(enemyName,this.scenario.Enemies,this.message);
+                    this.player.Act(enemyName,this.scenario.Enemies,this.message);
                     option = true;
                     return;
                 }
@@ -289,7 +350,6 @@ class motherBrain {
         let option = false;
         let filter = message => this.player.playerID === message.author.id;
         let type = this.player.Skills[index].type;
-        console.log(type);
         switch(type){
             case "Buff":
                 await this.message.say(this.getPlayerName()).then(m => {m.delete(this.Time);});
@@ -307,7 +367,7 @@ class motherBrain {
                     let playerName = collected.first().content;
                     if(this.checkBuff(playerName)){
                     //Player Uses Skill Here on Player
-                        this.message.say(`${this.player.playerName} used ${this.player.Skills[index].name} on ${playerName}`).then(m => {m.delete(this.Time);});
+                        this.message.say(`${this.player.Name} used ${this.player.Skills[index].name} on ${playerName}`).then(m => {m.delete(this.Time);});
                         this.player.useSkill(index,playerName,this.scenario.Players,this.message)
                         option = true;
                         return;
@@ -335,9 +395,37 @@ class motherBrain {
                     let enemyName = collected.first().content;
                     if(this.checkAttack(enemyName)){
                        //Player Uses Skill Here
-                        this.message.say(`${this.player.playerName} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
+                        this.message.say(`${this.player.Name} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
                         this.message.say(this.player.Skills[index].hit).then(m => {m.delete(this.Time);});
                         this.player.useSkill(index,enemyName,this.scenario.Enemies,this.message)
+                        option = true;
+                        return;
+                    }
+                    this.message.say("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
+                    this.logging("Enemy not here " + enemyName);
+                    chance -=1;
+                });
+                }
+                while(option == false)
+                break;
+            case "Magic":
+                await this.message.say(this.getEnemyName()).then(m => {m.delete(this.Time);});
+                do{  
+                 await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
+                 if(chance == 0){
+                        this.logging("No more chances left skipping turn!");
+                      option = true;
+                        return;
+                    }
+                    if(collected.first() == undefined){
+                        chance -=1;
+                        return;
+                    }
+                    let enemyName = collected.first().content;
+                    if(this.checkAttack(enemyName)){
+                    //Player Uses Skill Here
+                        this.message.say(`${this.player.Name} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
+                        this.player.useSkill(index,enemyName,this.scenario.Enemies,this.message);
                         option = true;
                         return;
                     }
@@ -357,15 +445,35 @@ class motherBrain {
 
     //ENEMY AI BASICALLY NEEDS TO BE UPDATED
     enemyAct(enemy){
-        let choice = Math.floor((Math.random() * 2) +1);
+        let choice = Math.floor((Math.random() * 3) +1);
         enemy = this.normalize(enemy);
         switch(choice){
             case 1:
-                enemy.attackPlayer(this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)], this.scenario.Players,this.message);
+                enemy.Act(this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)].Name, this.scenario.Players,this.message);
                 break;
             case 2:
                 enemy.defend(this.message);
                 break;
+            case 3:
+                if(this.checkMonSkill(enemy)){
+                    let skill = Math.floor(Math.random() * enemy.Skills.length);
+                    let type =  enemy.Skills[skill].type;
+                    switch(enemy){
+                        case "Buff":
+                            enemy.useSkill(skill,this.scenario.Enemies,this.message,this.getRandomEnemy());
+                            break;
+                        case "Physical":
+                            enemy.useSkill(skill,this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)].Name, this.scenario.Players,this.message)
+                            break;
+                        case "Magic":
+                            enemy.useSkill(skill,this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)].Name, this.scenario.Players,this.message)
+                            break;
+                    }
+                }
+                else{
+                enemy.Act(this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)].Name, this.scenario.Players,this.message);
+                break;
+                }
         }
        
     }
@@ -375,7 +483,7 @@ class motherBrain {
         var i = 0;
         while(isBattleOver == false){
             turnorder = this.whoAlive(turnorder);
-            this.logging(turnorder);
+            //this.logging(turnorder);
             this.logging(i);
             if(turnorder.length == 1){
                 isBattleOver = true;
@@ -418,6 +526,7 @@ class motherBrain {
         // MAIN Game Loop
         this.logging("Game Started");
         for(let i = 0; i < this.scenario.Story.length; i++){
+            await this.sleep(this.scenario.Options.textSpeed);
             let line = scenario.Story[i];
             let isBattle = this.whichBattle(i);
             line = helpful.replaceKeyword('PLAYERS',line,this.scenario.Players);
@@ -427,10 +536,10 @@ class motherBrain {
                 this.turnorder = this.createTurns(battleindex);
                 this.logging('Commencing Battle');
                 let battletext = helpful.replaceKeyword('PLAYERS', this.battletext[Math.floor(Math.random() * this.battletext.length)],this.scenario.Players)
-                this.message.say(battletext).then(m => {m.delete(this.Time);});
+                await this.message.say(battletext).then(m => {m.delete(this.Time);});
                 await this.commenceBattle(this.turnorder);
             }
-            this.message.say(line).then(m => {m.delete(this.Time);});
+            await this.message.say(line).then(m => {m.delete(this.Time);});
         }
     }
 }

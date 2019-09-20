@@ -9,7 +9,9 @@
     "Options": {
                
                 "timer": 60,
-
+                
+                "textSpeed": 1000,
+                
                 "minPlayer": 1,
   
                 "maxPlayer": 1,
@@ -26,12 +28,27 @@
        
         "Players": [{
             "playerID": null,
-            "playerName":"The Hero",
+            "Name":"The Hero",
             "HP": 750,
             "Attack" : 70,
             "Defense" : 35,
             "MP": 100,
             "Skills":[
+                {
+                    "type": "Magic",
+                    "name": "Fireball",
+                    "stat": "HP",
+                    "cost": 25,
+                    "amount": 45,
+                    "chance": 110,
+                    "Debuff": {
+                        "name": "Burn",
+                        "everyTurn": true,
+                        "stat": "HP",
+                        "length": 5,
+                        "amount": 10
+                    }
+                },
                 { 
                     "type": "Buff",
                     "name": "Heal",
@@ -42,12 +59,23 @@
 
                 },
                 {
+                    "type": "Buff",
+                    "name": "Regen",
+                    "stat": "HP",
+                    "length": 5,
+                    "everyTurn": true,
+                    "cost": 25,
+                    "amount": 15
+
+                },
+                {
                     "type": "Physical",
                     "name": "Hatchet Man",
-                    "damage":  500,
+                    "damage": 500,
                     "cost": 50,
                     "hit": "The Hero swings his sword with all his might and drops it on his opponent"
                 }
+
             ]
             
 
@@ -57,42 +85,43 @@
 
         "Enemies": [{
                 "enemyID": 1,
-                "enemyName":"Blue Slime",
+                "Name":"Blue Slime",
                 "HP": 200,
                 "Attack": 20,
                 "Defense": 10
         },
             {
                 "enemyID": 2,
-                "enemyName":"Green Slime",
+                "Name":"Green Slime",
                 "HP": 350,
                 "Attack": 10,
-                "Defense": 10
+                "Defense": 10,
+                "image" : "https://heroesravage.com/wp-content/uploads/2018/11/Slime-Idle-Down-13.gif"
             },
             {
                 "enemyID": 3,
-                "enemyName":"Skeleton",
+                "Name":"Skeleton",
                 "HP": 150,
                 "Attack": 25,
                 "Defense": 10 
             },
             {
                 "enemyID": 4,
-                "enemyName":"Ghoul 1",
+                "Name":"Ghoul 1",
                 "HP": 150,
                 "Attack": 35,
                 "Defense": 10 
             },
             {
                 "enemyID": 6,
-                "enemyName":"Ghoul 2",
+                "Name":"Ghoul 2",
                 "HP": 150,
                 "Attack": 35,
                 "Defense": 10 
             },
             {
                 "enemyID": 7,
-                "enemyName":"Great Orc",
+                "Name":"Great Orc",
                 "HP": 500,
                 "Attack": 20,
                 "Defense": 30 
@@ -118,7 +147,4 @@
             }
         
         ]
-
-
-
 }

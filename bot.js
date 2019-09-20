@@ -8,7 +8,7 @@ client.registry.registerDefaultTypes();
 client.registry.registerDefaultGroups();
 client.registry.registerDefaultCommands();
 client.registry.registerCommandsIn(__dirname + "/commands");
-
+global.scenario = {};
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
   });

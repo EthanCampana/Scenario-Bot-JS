@@ -8,7 +8,8 @@ class Gamestart extends commando.Command{
            name: 'gamestart',
            group: 'scenario',
            memberName: 'gamestart',
-           description: 'Starts the game'
+           description: 'Starts the game',
+           aliases: ['start', 'startgame', 'sg', 's']
 
         });
     }

@@ -9,6 +9,7 @@ class Join extends commando.Command{
            group: 'scenario',
            memberName: 'join',
            description: 'join',
+           aliases: ['j', 'play']
         });
     }
 
@@ -26,6 +27,7 @@ class Join extends commando.Command{
                             Choose wisely who you want to become... and reach the end of the scenario if you dare.`)
             .addBlankField();
 
+    
             helpful.showCharacter(embed,global.scenario.Players);
             message.say(embed);
 
@@ -47,12 +49,12 @@ class Join extends commando.Command{
                     let choice = collected.first().content;
                     let chosenindex = global.scenario.Players.findIndex((value, index, array) =>{
                         if(value.playerID  !== null){return;}
-                        return value.playerName.toUpperCase() == choice.toUpperCase();})
+                        return value.Name.toUpperCase() == choice.toUpperCase();})
                     if(chosenindex > -1){
                         let swap = function(array,index){array[index].playerID = "";return;};
                         helpful.findSwap(message,"playerID", message.author.id, global.scenario.Players, swap);
                         global.scenario.Players[chosenindex].playerID = message.author.id;
-                        message.say(`${message.author} has chosen  ${choice}`).then(m => {m.delete(30000);});
+                        message.say(`${message.author} has chosen ${choice}`).then(m => {m.delete(30000);});
                         return chosen = true;
                     }
                     message.say("Player is not available or does not exist! You have " + waitattempts.toString() + "  attempts remaining." ).then(m => {m.delete(30000);});
