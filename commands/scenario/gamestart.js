@@ -17,13 +17,13 @@ class Gamestart extends commando.Command{
     async run(message, args){
         if("Title" in global.scenario){
             helpful.Update();
-            let game = new motherBrain(message,global.scenario);
+            global.game = new motherBrain(message,global.scenario);
             let embed = new RichEmbed()
             .setColor('#61ff90')
             .setTitle(global.scenario.Title)
             .setAuthor(global.scenario.Author);
             await message.say(embed);
-            game.run();
+            global.game.run();
             return;
         }
        message.say("There is no active game");

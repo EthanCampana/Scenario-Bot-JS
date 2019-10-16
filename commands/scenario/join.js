@@ -64,6 +64,7 @@ class Join extends commando.Command{
                 });
             }
             while(chosen == false);
+            console.log(global.scenario.Players);
             return;
         }
         message.say("Their is no game to join").then(m => {m.delete(30000);});

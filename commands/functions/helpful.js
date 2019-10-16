@@ -30,15 +30,18 @@ exports = module.exports  = {
                     let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
                     message.say(`${this.Name} inflicted ${skill.damage} to ${Target}`);
                     array[targetindex].HP -= skill.damage;
-                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
+                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
+                        message.say(`${array[targetindex].Name} has been slain!`);}
                 }
                 if(type == "Magic"){
                     this.MP -= skill.cost;
                     let targetStat = skill.stat;
                     let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
                     message.say(`${this.Name} casted ${skill.name} on ${Target}`);
+                    message.say(`${this.Name} inflicted ${skill.amount} to ${Target}`);
                     array[targetindex][targetStat] -= skill.amount;
-                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
+                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
+                        message.say(`${array[targetindex].Name} has been slain!`);}
                     if(skill.hasOwnProperty('Debuff')){
                         let roll = Math.floor((Math.random() * 100) +1);
                         if(roll < skill.chance){
@@ -67,7 +70,9 @@ exports = module.exports  = {
                 if(damage < 0) { damage = 0;}
                 message.say(`${this.Name} did ${damage} damage to ${array[targetindex].Name}`).then(m => {m.delete(100000);});
                 array[targetindex].HP -= damage;
-                if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; }
+                if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false;
+                message.say(`${array[targetindex].Name} has been slain!`);
+                }
             },
 
             "Defend": function Defend(message)

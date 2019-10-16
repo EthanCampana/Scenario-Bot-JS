@@ -1,0 +1,385 @@
+
+ {
+    "Title": "The Tower",
+    "Author": "The Creator",
+    "Story": ["Our Heroes enter the tower that seems to have an endless height.",
+              "The doors creek open and entrance of this tower is an elegant room with very decorative furniture.",
+              "The Door shuts behind them.....",
+              "The chairs and lamps start to move and attack our Heroes",
+              "FLOOR 1",
+               "The Heroes defeneded against the creatures and pressed forward",
+               "They head up the stairs to proceed the next floor",
+               "The heroes open the door to the second floor and are presented to open room",
+               "The lamps automatically turn on presenting many enemies before them",
+               "FLOOR 2",
+               "Upon clearing out the enemies, they pick up the keys to reach the next floor",
+               "The next floor has a siren sitting on the pillar, she turns the heroes and Screeches",
+               "Heroes from before rise up from the ground ready to protect thier queen",
+               "Floor 3",
+               "After the battle with the Siren, the room start to shake",
+               "WARNING",
+               "WARNING",
+               "A Giant Dragon Anime Boy appears wielding two swords",
+               "He looks at our Heroes and sighs....",
+               "GIANT DRAGON ANIME BOY: hmph guess this is where you guys die huh..",
+               "BOSS BATTLE",
+               "To Be continued....."
+                ],
+    "Options": {
+               
+                "timer": 60,
+                
+                "textSpeed": 1000,
+                
+                "minPlayer": 2,
+  
+                "maxPlayer": 3,
+
+                "canCreate": false,
+
+                "canCreateOptions": {
+                        "HP": [100,1000],
+                        "Attack": [10,75],
+                        "Defense": [10,67]
+                }
+
+                },
+       
+        "Players": [
+            {
+            "playerID": null,
+            "Name": "Saif",
+            "HP": 235,
+            "Attack": 35,
+            "Defense": 30,
+            "MP": 250,
+            "Skills":[{
+                "type": "Magic",
+                "name": "Flame Sword",
+                "stat":  "HP",
+                "cost": 15,
+                "amount": 45,
+                "chance": 24,
+                "Debuff": {
+                    "name": "Burn",
+                    "everyTurn": true,
+                    "stat": "HP",
+                    "length": 5,
+                    "amount": 10
+                }
+            },
+            {
+                "type": "Physical",
+                "name": "Diamond Slash",
+                "damage": 250,
+                "cost": 75,
+                "hit": "Saif channels his energy into his sword it shines bright like a diamond, It pierces his opponent with a crushing blow!"
+            },
+            {
+                "type": "Magic",
+                "name": "that's Cap",
+                "stat": "HP",
+                "cost": 100,
+                "amount": 15,
+                "chance": 54,
+                "Debuff": {
+                    "name": "Hurted",
+                    "everyTurn": true,
+                    "stat": "Defense",
+                    "length": 5,
+                    "amount": 20
+                }
+            }
+        ]
+            },
+            {
+                "playerID": null,
+                "Name": "Damian",
+                "HP": 270,
+                "Attack": 55,
+                "Defense": 50,
+                "MP": 120,
+                "Skills":[ 
+                    {
+                        "type": "Magic",
+                        "name": "Scar Slash",
+                        "stat": "HP",
+                        "cost": 30,
+                        "amount": 75,
+                        "chance": 15,
+                        "Debuff": {
+                            "name": "Bleeding",
+                            "everyTurn": true,
+                            "stat": "HP",
+                            "length": 5,
+                            "amount": 20
+                        }
+                    },
+                   
+                    {
+                        "type": "Physical",
+                        "name": "Final Blow",
+                        "damage": 275,
+                        "cost": 70,
+                        "hit": "Damian puts his whole childhood trauma into one Great Swing!"
+                    }
+                ]
+            },
+            {
+                    "playerID": null,
+                    "Name": "Relica",
+                    "HP": 170,
+                    "Attack": 20,
+                    "Defense": 25,
+                    "MP": 350,
+                    "Skills":[            
+                            { 
+                        "type": "Buff",
+                        "name": "Heal",
+                        "stat": "HP",
+                        "length": 0,
+                        "cost": 10,
+                        "amount": 35
+    
+                    },
+                    {
+                        "type": "Buff",
+                        "name": "Regen",
+                        "stat": "HP",
+                        "length": 5,
+                        "everyTurn": true,
+                        "cost": 25,
+                        "amount": 15
+    
+                    },
+                    {
+                        "type": "Buff",
+                        "name": "Square Up",
+                        "stat": "Attack",
+                        "length": 2,
+                        "cost": 35,
+                        "amount": 20
+    
+                    }
+                ]
+                }
+    ],
+
+        "Enemies":  [
+            {
+                "enemyID": 1,
+                "Name":"Spook Lamp",
+                "HP": 100,
+                "Attack": 15,
+                "Defense": 10,
+                "image": "https://ae01.alicdn.com/kf/HTB17hTqdjrguuRjy0Feq6xcbFXaU/Halloween-Lantern-Pumpkin-Witch-Skull-Night-Light-Scary-Lamp-Hanging-Prop-Christmas-Prop-For-Home-Party.jpg"
+
+        },
+        {
+            "enemyID": 2,
+            "Name":"Sinister Sofa",
+            "HP": 150,
+            "Attack": 20,
+            "Defense": 5,
+            "MP": 50,
+            "Skills":[{
+                "type": "Physical",
+                "name": "Sofa Munch",
+                "damage":20,
+                "cost": 25,
+                "hit": "Get Munched By My Cushions!!"
+            }]
+        },
+        {
+            "enemyID": 3,
+            "Name":"Skeleton",
+            "HP": 150,
+            "Attack": 25,
+            "Defense": 5, 
+            "MP": 50,
+            "Skills":[ {
+                "type": "Physical",
+                "name": "Bone Toss",
+                "damage":5,
+                "cost": 10,
+                "hit": "Take a Leg"
+            }]
+        },
+        {
+            "enemyID": 4,
+            "Name":"Ghoul 1",
+            "HP": 200,
+            "Attack": 15,
+            "Defense": 10,
+            "MP": 50,
+            "Skills": [     
+                {
+                "type": "Magic",
+                "name": "Bad Breath",
+                "stat":  "Defense",
+                "cost": 15,
+                "amount": 10,
+                "chance": 50,
+                "Debuff": {
+                    "name": "Poisoned",
+                    "everyTurn": true,
+                    "stat": "HP",
+                    "length": 5,
+                    "amount": 5
+                }
+            }]
+
+
+       
+        },
+        {
+            "enemyID": 5,
+            "Name":"Great Orc",
+            "HP": 350,
+            "Attack": 20,
+            "Defense": 20,
+            "MP": 70,
+            "Skills":[{
+                "type": "Buff",
+                "name": "Square Up",
+                "stat": "Attack",
+                "length": 2,
+                "everyTurn": true,
+                "cost": 15,
+                "amount": 4
+
+            },
+            {
+                "type": "Physical",
+                "name": "Great Orcs Great Big Attack",
+                "damage": 40,
+                "cost": 35,
+                "hit": "BIG DAMAGE!!!!"
+            }
+        ]
+            
+        },
+        {
+            "enemyID": 6,
+            "Name":"Siren",
+            "HP": 250,
+            "Attack": 5,
+            "Defense": 40,
+            "MP": 300,
+            "image": "https://vignette.wikia.nocookie.net/the-demonic-paradise/images/6/6b/Siren.jpg/revision/latest?cb=20161128224301",
+            "Skills": [
+                { 
+                    "type": "Buff",
+                    "name": "Heal",
+                    "stat": "HP",
+                    "length": 0,
+                    "cost": 10,
+                    "amount": 25
+
+                },
+                {
+                    "type": "Buff",
+                    "name": "Regen",
+                    "stat": "HP",
+                    "length": 5,
+                    "everyTurn": true,
+                    "cost": 25,
+                    "amount": 15
+
+                },
+                {
+                    "type": "Buff",
+                    "name": "Sirens Song",
+                    "stat": "Defense",
+                    "length": 0,
+                    "cost": 75,
+                    "amount":25
+                }
+
+
+            ] 
+        },
+        {
+            "enemyID": 7,
+            "Name":"Lost Soul 1",
+            "HP": 150,
+            "Attack": 35,
+            "Defense": 10, 
+            "MP": 100,
+            "Skills": [ 
+                {
+                    "type": "Physical",
+                    "name": "Soul Blade",
+                    "damage": 50,
+                    "cost": 30,
+                    "hit": "Lost Soul Cuts through his opponent Soul!"
+                }]
+        },
+        {
+            "enemyID": 8,
+            "Name":"Lost Soul 2",
+            "HP": 150,
+            "Attack": 35,
+            "Defense": 10,
+            "MP": 100,
+            "Skills": [ 
+                {
+                    "type": "Physical",
+                    "name": "Soul Blade",
+                    "damage": 50,
+                    "cost": 30,
+                    "hit": "Lost Soul Cuts through his opponent Soul!"
+                }] 
+        },
+        {
+            "enemyID": 9,
+            "Name":"Giant Dragon Anime Boy",
+            "HP": 1000,
+            "Attack": 35,
+            "Defense": 30,
+            "MP": 200,
+            "image": "https://i.pinimg.com/564x/fb/f1/50/fbf150966e2a96ddb5fc1d68851d9948.jpg",
+            "Skills":[ {
+                "type": "Physical",
+                "name": "Infinity Dragon Blade",
+                "damage": 70,
+                "cost": 35,
+                "hit": "HAAAAAAAAAAAAAAAAA TASTE MY INFINITY DRAGON BLADE!!!"
+            },
+            {
+                "type": "Magic",
+                "name": "Dragon Breath",
+                "stat": "HP",
+                "cost": 25,
+                "amount": 35,
+                "chance": 50,
+                "Debuff": {
+                    "name": "Burn",
+                    "everyTurn": true,
+                    "stat": "HP",
+                    "length": 5,
+                    "amount": 7
+                }
+            }
+        ]
+        }
+        ],
+        "Battle": [
+            {
+                "lineOccurs": 4,
+                "enemyID": [1,2]
+            },
+            {
+                "lineOccurs": 9,
+                "enemyID": [3,4,5]
+            },
+            {
+                "lineOccurs": 13,
+                "enemyID": [6,7,8]
+            },
+            {
+                "lineOccurs": 20,
+                "enemyID": [9]
+            }
+        ]
+}

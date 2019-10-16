@@ -9,7 +9,12 @@ class motherBrain {
         this.battletext = ["A raging battle is about to brew", "Unexpected foes have been encountered", "PLAYERS can't escape from clashing with foes","A battle is about to commence"];
         this.Time = 0;
         this.turnorder = []
+        this.GameOver = false;
         
+    }
+    quit(){
+        this.GameOver = true;
+        this.scenario.Story = "";
     }
      sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -25,7 +30,7 @@ class motherBrain {
     }
 
     deletePlayers(){
-        let playablecast = this.scenario.Players.filter((value, index, array)=> {return value.playerID !== "";});
+        let playablecast = this.scenario.Players.filter((value, index, array)=> {return value.playerID !== null;});
         this.scenario.Players = playablecast;    
     }
     //CHECKS GAME START CONDITIONS
@@ -87,8 +92,7 @@ class motherBrain {
         return text
     }
     getRandomEnemy(){
-        let enemy;
-        let arr
+        let arr = [];
         this.turnorder.forEach((value, index, array) => {
             if (value.Type == "Enemy"){
                 arr.push(value);
@@ -162,8 +166,8 @@ class motherBrain {
           player.currentBuffs =  buffs;
         }
         if(player.Debuffs.length > 0){
-            let debuffs = player.DeBuffs.filter((value, index, array)=> {return value.length > 0;})
-            player.currentBuffs = debuffs;
+            let debuffs = player.Debuffs.filter((value, index, array)=> {return value.length > 0;})
+            player.Debuffs = debuffs;
         }
         if(player.hasDefended === true){
             player.hasDefended = false;
@@ -215,7 +219,7 @@ class motherBrain {
         var optionChosen = false;
         await this.message.say(`${player.Name} it is your turn`).then(m => {m.delete(this.Time);});
         do{
-         await this.message.say(`Attack    Skill      Defend     Run: ${waittime}`).then(m => {m.delete(this.Time);});
+         await this.message.say(`Attack    Skill      Defend     Run: ${waittime} \n Current HP: ${player.HP} Current MP: ${player.MP}`).then(m => {m.delete(this.Time);});
            await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
              
                 if(waittime == 0){
@@ -457,12 +461,14 @@ class motherBrain {
             case 3:
                 if(this.checkMonSkill(enemy)){
                     let skill = Math.floor(Math.random() * enemy.Skills.length);
+                    if(enemy.Skills.length == 1){skill = 0;}
                     let type =  enemy.Skills[skill].type;
-                    switch(enemy){
+                    switch(type){
                         case "Buff":
-                            enemy.useSkill(skill,this.scenario.Enemies,this.message,this.getRandomEnemy());
+                            enemy.useSkill(skill,this.getRandomEnemy(),this.scenario.Enemies,this.message,);
                             break;
                         case "Physical":
+                            this.message.say(enemy.Skills[skill].hit).then(m => {m.delete(this.Time);});
                             enemy.useSkill(skill,this.scenario.Players[Math.floor(Math.random() * this.scenario.Players.length)].Name, this.scenario.Players,this.message)
                             break;
                         case "Magic":
@@ -525,22 +531,27 @@ class motherBrain {
         this.deletePlayers();
         // MAIN Game Loop
         this.logging("Game Started");
-        for(let i = 0; i < this.scenario.Story.length; i++){
-            await this.sleep(this.scenario.Options.textSpeed);
-            let line = scenario.Story[i];
-            let isBattle = this.whichBattle(i);
-            line = helpful.replaceKeyword('PLAYERS',line,this.scenario.Players);
-            if(isBattle){
-                this.logging("Setting up current Battle....");
-                let battleindex = this.getBattleIndex(i);
-                this.turnorder = this.createTurns(battleindex);
-                this.logging('Commencing Battle');
-                let battletext = helpful.replaceKeyword('PLAYERS', this.battletext[Math.floor(Math.random() * this.battletext.length)],this.scenario.Players)
-                await this.message.say(battletext).then(m => {m.delete(this.Time);});
-                await this.commenceBattle(this.turnorder);
+        this.logging(this.scenario.Players);
+        while(this.GameOver == false){
+            for(let i = 0; i < this.scenario.Story.length; i++){
+                await this.sleep(this.scenario.Options.textSpeed);
+                let line = scenario.Story[i];
+                let isBattle = this.whichBattle(i);
+                line = helpful.replaceKeyword('PLAYERS',line,this.scenario.Players);
+                if(isBattle){
+                    this.logging("Setting up current Battle....");
+                    let battleindex = this.getBattleIndex(i);
+                    this.turnorder = this.createTurns(battleindex);
+                    this.logging('Commencing Battle');
+                    let battletext = helpful.replaceKeyword('PLAYERS', this.battletext[Math.floor(Math.random() * this.battletext.length)],this.scenario.Players)
+                    await this.message.say(battletext).then(m => {m.delete(this.Time);});
+                    await this.commenceBattle(this.turnorder);
+                }
+                await this.message.say(line).then(m => {m.delete(this.Time);});
             }
-            await this.message.say(line).then(m => {m.delete(this.Time);});
+            this.GameOver = true;
         }
+        
     }
 }
 
