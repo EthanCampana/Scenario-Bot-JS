@@ -9,53 +9,48 @@ exports = module.exports  = {
             "useSkill": function(index, Target, array, message){
                 let skill = this.Skills[index];
                 let type = skill.type;
-                if(type == "Buff"){
-                    this.MP -= skill.cost;
-                    if(skill.length > 0){
-                        let buff = {};
-                        if(skill.hasOwnProperty('everyTurn')){buff.everyTurn = true;}else{buff.everyTurn = false;}
-                        buff.stat = skill.stat;
-                        buff.length = skill.length;
-                        buff.amount = skill.amount;
-                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                        array[targetindex].currentBuffs.push(buff);
-                        return;
-                    }
-                    let targetStat = skill.stat;
-                    let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                    array[targetindex][targetStat] += skill.amount;
-                }
-                if(type == "Physical"){
-                    this.MP -= skill.cost;
-                    let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                    message.say(`${this.Name} inflicted ${skill.damage} to ${Target}`);
-                    array[targetindex].HP -= skill.damage;
-                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
-                        message.say(`${array[targetindex].Name} has been slain!`);}
-                }
-                if(type == "Magic"){
-                    this.MP -= skill.cost;
-                    let targetStat = skill.stat;
-                    let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                    message.say(`${this.Name} casted ${skill.name} on ${Target}`);
-                    message.say(`${this.Name} inflicted ${skill.amount} to ${Target}`);
-                    array[targetindex][targetStat] -= skill.amount;
-                    if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
-                        message.say(`${array[targetindex].Name} has been slain!`);}
-                    if(skill.hasOwnProperty('Debuff')){
-                        let roll = Math.floor((Math.random() * 100) +1);
-                        if(roll < skill.chance){
-                            message.say(`${array[targetindex].Name} has been inflicted with ` + skill.Debuff.name);
-                            array[targetindex].Debuffs.push(skill.Debuff);
-
+                switch(type){
+                    case "Buff":
+                        this.MP -= skill.cost;
+                        if(skill.length > 0){
+                            let buff = {};
+                            if(skill.hasOwnProperty('everyTurn')){buff.everyTurn = true;}else{buff.everyTurn = false;}
+                            buff.stat = skill.stat;
+                            buff.length = skill.length;
+                            buff.amount = skill.amount;
+                            let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
+                            array[targetindex].currentBuffs.push(buff);
+                            break;
                         }
-                        
-                        
-                        
-                    }
-
+                        let targetStat = skill.stat;
+                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
+                        array[targetindex][targetStat] += skill.amount;
+                    case "Physical":
+                        this.MP -= skill.cost;
+                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
+                        message.say(`${this.Name} inflicted ${skill.damage} to ${Target}`);
+                        array[targetindex].HP -= skill.damage;
+                        if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
+                            message.say(`${array[targetindex].Name} has been slain!`);}
+                        break;
+                    case "Magic":
+                        this.MP -= skill.cost;
+                        let targetStat = skill.stat;
+                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
+                        message.say(`${this.Name} casted ${skill.name} on ${Target}`);
+                        message.say(`${this.Name} inflicted ${skill.amount} to ${Target}`);
+                        array[targetindex][targetStat] -= skill.amount;
+                        if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
+                            message.say(`${array[targetindex].Name} has been slain!`); break;}
+                        if(skill.hasOwnProperty('Debuff')){
+                            let roll = Math.floor((Math.random() * 100) +1);
+                            if(roll < skill.chance){
+                                message.say(`${array[targetindex].Name} has been inflicted with ` + skill.Debuff.name);
+                                array[targetindex].Debuffs.push(skill.Debuff);
+                            }  
+                        }
+                        break;     
                 }
-
             },
 
             "Action": function Action(Target,array,message){
@@ -77,17 +72,18 @@ exports = module.exports  = {
 
             "Defend": function Defend(message)
             {  
-            if(this.Type == 'Player'){
-                message.say(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
-                this.Defense *=2;
-                this.hasDefended = true;
-                return;
-            }
-            message.say(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
-            this.Defense *=2;
-            this.hasDefended = true;
-      
-            
+                switch(this.Type){
+                    case "Player":
+                        message.say(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
+                        this.Defense *=2;
+                        this.hasDefended = true;
+                        break;
+                    case "Enemy":
+                        message.say(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
+                        this.Defense *=2;
+                        this.hasDefended = true;
+                        break;
+                }            
         }
             },
                 
@@ -174,8 +170,6 @@ exports = module.exports  = {
                 .setImage(value.image)
                 .setDescription(`${value.Name} has appeared!`);
                 message.say(embed).then(m => {m.delete(100000);})
-                //message.say(`${value.image}`).then(m => {m.delete(100000);})
-                //message.say(`${value.image} ${value.enemyName} has appeared!`).then(m => {m.delete(100000);})
              }
              else{
               message.say(`${value.Name} has appeared!`).then(m => {m.delete(100000);})

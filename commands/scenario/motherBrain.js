@@ -113,24 +113,20 @@ class motherBrain {
     }
     //Checks to see if the Enemy the player wants to attack is in the battle
     checkAttack(name){
-        if(typeof name ==  undefined){
-            return false;
-        }
         let checked = this.turnorder.some((value, index, array) => {return value.Name == name;})
         return checked;
     }
+
     checkBuff(name){
         let checked = this.turnorder.some((value, index, array) => {return value.Name.toUpperCase() == name.toUpperCase();});
         return checked;
     }
+
     checkBattleStatus(array){
        let isPlayersAlive = array.some((value, index, array) => {return value.Type == "Player";});
        let isMonstersAlive = array.some((value, index, array) => {return value.Type == "Enemy";});
        let hasFled = array.some((value,index,array)=> {return value.hasFled == false;});
-       if(isMonstersAlive == false){
-           return true;
-       }
-       if(isPlayersAlive == false){
+       if(isMonstersAlive == false || this.turnorder.length == 1 || isPlayersAlive == false){
            return true;
        }
        if(hasFled == false){
@@ -141,20 +137,16 @@ class motherBrain {
        }
        return false;
     }
+
     checkSkills(){
-        if(! this.player.hasOwnProperty('Skills')){
-            return false;
-        }
-        if(this.player.Skills.length == 0){
+        if(! this.player.hasOwnProperty('Skills') || this.player.Skills.length == 0 ){
             return false;
         }
         return true;
     }
+
     checkMonSkill(enemy){
-        if(! enemy.hasOwnProperty('Skills')){
-            return false;
-        }
-        if(enemy.Skills.length == 0){
+        if(! enemy.hasOwnProperty('Skills') || enemy.Skills.length == 0){
             return false;
         }
         return true;
@@ -177,6 +169,7 @@ class motherBrain {
         player = this.applyStatus(player);
         return player
     }
+    
     applyStatus(player){
         if(player.currentBuffs.length > 0){
             for(let i = 0; i < player.currentBuffs.length; i++ ){
@@ -208,11 +201,41 @@ class motherBrain {
 
     }
 
-    
+    //BATTLE FUNCTION DETERMINES WHO TURN IT IS AND WHEN THE BATTLE IS OVER
+    async commenceBattle(turnorder){
+        let isBattleOver = false;
+        var i = 0;
+        while(isBattleOver == false){
+            turnorder = this.whoAlive(turnorder);
+            isBattleOver = this.checkBattleStatus(turnorder);
+            if(isBattleOver){
+                break;
+            }
+            if(i >= turnorder.length){
+                i = 0;
+            }
+
+            switch(turnorder[i].Type){
+                case "Player":
+                    await this.playerAct(turnorder[i]);
+                    break;
+                case "Enemy":
+                    this.enemyAct(turnorder[i]);
+                    break;
+            }
+            i++;
+        };
+        this.logging("Battle has ended");
+        }
+
+
+
+//-----------------PLAYER MENU STUFF BEGINS HERE------------------------//
     //PLAYERS TURN ALL PLAYER OPTIONS GO HERE
+    //CHANGE ALL PLAYER MENUS TO EMOJI MENUS FOR EASE OF USE... Maybe need Dictionaries and Switch Statment for Dynamic Emojis
+    //General Cleanup also needed in all the menus ---Tedious work :[
     async playerAct(player){
         this.player = this.normalize(player);
-        //this.logging(player);
         let filter = message => this.player.playerID === message.author.id;
         let waittime = 5;
         let action = "";
@@ -261,7 +284,11 @@ class motherBrain {
         while(optionChosen == false)
         this.logging("TURN ENDED");
     }
-    ///ATTACK SUBMENU
+
+
+
+
+///-------------ATTACK SUBMENU-------------------------//
    async attackOptions(){
         this.logging("Sub-Menu Opened")
         let chance = 2;
@@ -294,7 +321,10 @@ class motherBrain {
         while(option == false)
         this.logging("Sub-Menu Closed");
     }
-    //Skills Menu
+
+
+
+//--------------------Skills Menu--------------------------------//
     async skillOptions(){
         this.logging("Skill Sub-Menu Opened")
         let chance = 3;
@@ -327,7 +357,7 @@ class motherBrain {
                     this.message.say("No Skill of such Name").then(m => {m.delete(this.Time);});
                     this.logging("No Skill of such name " + skillName);
                     chance -=1;
-                    return;
+                    return;x
                 }
                
             });
@@ -347,7 +377,7 @@ class motherBrain {
         return option;
     }
 
-    //Target Menu For Using a Skill
+//----------------------------Target Menu For Using a Skill---------------------------------------//
     async chooseSkillTarget(index){
         this.logging("Skill Target Menu Opened")
         let chance = 3;
@@ -443,9 +473,10 @@ class motherBrain {
         }
         return option;
 
-
     }
 
+
+//-----------------PLAYER MENU STUFF Ends Here-----------------------//
 
     //ENEMY AI BASICALLY NEEDS TO BE UPDATED
     enemyAct(enemy){
@@ -483,71 +514,35 @@ class motherBrain {
         }
        
     }
-    //BATTLE FUNCTION DETERMINES WHO TURN IT IS AND WHEN THE BATTLE IS OVER
-    async commenceBattle(turnorder){
-        let isBattleOver = false;
-        var i = 0;
-        while(isBattleOver == false){
-            turnorder = this.whoAlive(turnorder);
-            //this.logging(turnorder);
-            this.logging(i);
-            if(turnorder.length == 1){
-                isBattleOver = true;
-                break;
-            }
-            if(i >= turnorder.length){
-                i = 0;
-            }
 
-            isBattleOver = this.checkBattleStatus(turnorder);
-            this.logging(isBattleOver);
-            if(isBattleOver){
-                this.logging("Returning");
-                break;
-            }
-            if(turnorder[i].Type == "Player"){
-                 await this.playerAct(turnorder[i]);
-                
-            }
-            else{
-                this.enemyAct(turnorder[i]);
-                
-            }
-            i++;
-    
-        };
-        this.logging("Battle has ended");
-        }
 
   //MAIN FUNCTION WHAT STARTS THE GAME
    async run(){
         this.logging("Checking Requirements.....") ;
         this.Time = this.scenario.Options.timer * 1000;
-        let checked = this.checkConditions();
-        if(checked == false){ 
+        if(this.checkConditions() == false){ 
             this.logging("Game start requirements not met!");
             return;}
         this.logging("Deleting Players.....");
         this.deletePlayers();
-        // MAIN Game Loop
+//-------------- MAIN Game Loop ------------------------------------//
         this.logging("Game Started");
         this.logging(this.scenario.Players);
         while(this.GameOver == false){
             for(let i = 0; i < this.scenario.Story.length; i++){
                 await this.sleep(this.scenario.Options.textSpeed);
-                let line = scenario.Story[i];
-                let isBattle = this.whichBattle(i);
-                line = helpful.replaceKeyword('PLAYERS',line,this.scenario.Players);
-                if(isBattle){
+                let line = helpful.replaceKeyword('PLAYERS',scenario.Story[i],this.scenario.Players);
+                if(this.whichBattle(i)){
                     this.logging("Setting up current Battle....");
-                    let battleindex = this.getBattleIndex(i);
-                    this.turnorder = this.createTurns(battleindex);
+                    this.turnorder = this.createTurns(this.getBattleIndex(i));
                     this.logging('Commencing Battle');
                     let battletext = helpful.replaceKeyword('PLAYERS', this.battletext[Math.floor(Math.random() * this.battletext.length)],this.scenario.Players)
                     await this.message.say(battletext).then(m => {m.delete(this.Time);});
+                    battletext = null;
                     await this.commenceBattle(this.turnorder);
                 }
                 await this.message.say(line).then(m => {m.delete(this.Time);});
+                line = null;
             }
             this.GameOver = true;
         }
