@@ -239,27 +239,48 @@ class motherBrain {
         let filter = message => this.player.playerID === message.author.id;
         let waittime = 5;
         let action = "";
-        var optionChosen = false;
+        let optionChosen = false;
         await this.message.say(`${player.Name} it is your turn`).then(m => {m.delete(this.Time);});
         do{
-         await this.message.say(`Attack    Skill      Defend     Run: ${waittime} \n Current HP: ${player.HP} Current MP: ${player.MP}`).then(m => {m.delete(this.Time);});
-           await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
-             
-                if(waittime == 0){
-                    this.logging("turn has been skipped"); 
-                   optionChosen = true;
-                 return;
-                }
-                if(collected.first() == undefined){
-                    waittime -=1;
-                    this.logging("undefined was passed nothing was said")
+         await this.message.say(`Attack    Skill      Defend     Run: ${waittime} \n Current HP: ${player.HP} Current MP: ${player.MP}`)
+         .then(()=> m.react('⚔️'))
+         .then(()=> m.react(':mage:'))
+         .then(()=> m.react(':shield:'))
+         .then(()=> m.react(':person_running:'))
+         .then(m => {m.delete(this.Time);});
+
+        await this.message.channel.awaitReactions(filter,{max: 1, time: this.Time})
+        .then(collected =>{
+            if(collected.first() == undefined){
+                waittime -=1;
+                return;
+            }
+            if(waittime == 0){
+                optionChosen = true;
+                return;
+             }
+
+            reaction = collected.first();
+            action = reaction.emoji.name;
+            waittime -=1
+        });
+
+        switch(action){
+            case ':crossed_swords:':
+                await this.attackOptions(); 
+                optionChosen = true;
+                break;
+            case ':mage:':
+                if(this.checkSkills()){
+                    optionChosen = await this.skillOptions();
                     return;
                 }
-                 action = collected.first().content;
-                 waittime -=1
-                
-            });
-            if(action.toUpperCase() === "RUN"){
+                this.message.say("You do not have any skills..").then(m => {m.delete(this.Time);});
+                break;
+            case ':shield:':
+                player.defend(this.message); optionChosen = true;
+                break;
+            case ':person_running:':
                 optionChosen = true;
                 let num = helpful.Range(0,100);
                 if(num == 1){
@@ -267,24 +288,11 @@ class motherBrain {
                     this.message.say(`${this.player.Name} has fled from the battle`);
                 }
                 this.message.say(`${this.player.Name} tried to flee from battle but failed!`);
-            }
-            if(action.toUpperCase() === "DEFEND"){player.defend(this.message); optionChosen = true;}
-            if(action.toUpperCase() === "ATTACK"){
-               await this.attackOptions(); 
-                optionChosen = true;
-            }
-            if(action.toUpperCase() === "SKILL"){  
-                if(this.checkSkills()){
-                    optionChosen = await this.skillOptions();
-                    return;
-                }
-                this.message.say("You do not have any skills..").then(m => {m.delete(this.Time);});
-            }
+                break;
+        }
         }
         while(optionChosen == false)
-        this.logging("TURN ENDED");
     }
-
 
 
 
@@ -297,12 +305,11 @@ class motherBrain {
         await  this.message.say("Enemies:").then(m => {m.delete(this.Time);});
         await this.message.say(this.getEnemyName()).then(m => {m.delete(this.Time);});
         do{
+            if(chance == 0){
+                option = true;
+                break;
+             }
             await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
-                if(chance == 0){
-                    this.logging("No more chances left skipping turn!");
-                    option = true;
-                    return;
-                 }
                 if(collected.first() == undefined){
                     chance -=1;
                     return;
@@ -311,11 +318,13 @@ class motherBrain {
                 if(this.checkAttack(enemyName)){
                     this.player.Act(enemyName,this.scenario.Enemies,this.message);
                     option = true;
+                    enemyName = null;
                     return;
                 }
                 this.message.say("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
-                this.logging("Enemy not here " + enemyName);
+                enemyName = null;
                 chance -=1;
+                
             });
         }
         while(option == false)
@@ -330,44 +339,44 @@ class motherBrain {
         let chance = 3;
         let option = false;
         let filter = message => this.player.playerID === message.author.id;
-        let skills = this.player.Skills
-        let skill = 0;
         let hasexited = false;
         await  this.message.say("Skills:").then(m => {m.delete(this.Time);});
         await this.message.say(this.printSkills(this.player)).then(m => {m.delete(this.Time);});
         do{
+            if(chance == 0){ option = true; break;}
             await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
-                if(chance == 0){
-                    this.logging("No more chances left skipping turn!");
-                    option = true;
-                    return;
-                 }
+                
                 if(collected.first() == undefined){
                     chance -=1;
                     return;
                 }
-                let skillName = collected.first().content;
-                if(skillName.toUpperCase() == "BACK"){
+                //Might have to initialize this earlier making a note of it now just in case it causes future bugs
+                let skillName = collected.first().content.toUpperCase();
+                
+                if(skillName == "BACK"){
                     hasexited = true;
                     option = true;
                     return;
                 }
-                skill = skills.findIndex((value,index,array) => { return value.name.toUpperCase() == skillName.toUpperCase()});
-                if(skill == -1){
-                    this.message.say("No Skill of such Name").then(m => {m.delete(this.Time);});
-                    this.logging("No Skill of such name " + skillName);
+                if(!this.player.Skills.has(skillName)){
+                    this.message.say("No Skill of such name").then(m => {m.delete(this.Time);});
                     chance -=1;
-                    return;x
+                    skillName = null;
+                    return;
                 }
                
             });
-            if(skill > -1){
-                if(skills[skill].cost > this.player.MP ){
+
+            if(this.player.Skills.has(skillName)){
+                if(this.player.Skills.get(skillName).cost > this.player.MP ){
                     this.message.say("You don't have enough MP to use this Skill").then(m => {m.delete(this.Time);}); 
+                    skillName = null;
                     return;
                 }
-                option = await this.chooseSkillTarget(skill);
+                        //ChooseSkillTarget passes in the chosen skill object instead of index since switching over to mapping system
+                option = await this.chooseSkillTarget(this.player.Skills.get(skillName));
                 }
+
         }
         while(option == false)
         if(hasexited){
@@ -378,22 +387,19 @@ class motherBrain {
     }
 
 //----------------------------Target Menu For Using a Skill---------------------------------------//
-    async chooseSkillTarget(index){
+    async chooseSkillTarget(skill){
         this.logging("Skill Target Menu Opened")
         let chance = 3;
         let option = false;
-        let filter = message => this.player.playerID === message.author.id;
-        let type = this.player.Skills[index].type;
-        switch(type){
+        let filter = message => this.player.playerID === message.author.id;]
+
+        //Determines what type of skill that was passed in during the previous Menu
+        switch(skill.type){
             case "Buff":
                 await this.message.say(this.getPlayerName()).then(m => {m.delete(this.Time);});
                 do{
+                if(chance == 0){  option = true; break;     }
                 await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
-                    if(chance == 0){
-                        this.logging("No more chances left skipping turn!");
-                        option = true;
-                        return;
-                     }
                     if(collected.first() == undefined){
                         chance -=1;
                         return;
@@ -402,26 +408,24 @@ class motherBrain {
                     if(this.checkBuff(playerName)){
                     //Player Uses Skill Here on Player
                         this.message.say(`${this.player.Name} used ${this.player.Skills[index].name} on ${playerName}`).then(m => {m.delete(this.Time);});
-                        this.player.useSkill(index,playerName,this.scenario.Players,this.message)
+                        this.player.useSkill(skill,playerName,this.scenario.Players,this.message)
+                        playerName = null;
                         option = true;
                         return;
                     }
                     this.message.say("No Player named " + playerName).then(m => {m.delete(this.Time);});
-                    this.logging("No Player named " + playerName);
+                    playerName = null;
                     chance -=1;      
                     });
                     }
                 while(option == false)
                 break;
+
             case "Physical":
                 await this.message.say(this.getEnemyName()).then(m => {m.delete(this.Time);});
                 do{  
+                    if(chance == 0){  option = true; break;     }
                 await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
-                    if(chance == 0){
-                        this.logging("No more chances left skipping turn!");
-                        option = true;
-                        return;
-                     }
                     if(collected.first() == undefined){
                         chance -=1;
                         return;
@@ -431,12 +435,13 @@ class motherBrain {
                        //Player Uses Skill Here
                         this.message.say(`${this.player.Name} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
                         this.message.say(this.player.Skills[index].hit).then(m => {m.delete(this.Time);});
-                        this.player.useSkill(index,enemyName,this.scenario.Enemies,this.message)
+                        this.player.useSkill(skill,enemyName,this.scenario.Enemies,this.message)
+                        enemyName = null;
                         option = true;
                         return;
                     }
                     this.message.say("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
-                    this.logging("Enemy not here " + enemyName);
+                    enemyName = null;
                     chance -=1;
                 });
                 }
@@ -445,12 +450,8 @@ class motherBrain {
             case "Magic":
                 await this.message.say(this.getEnemyName()).then(m => {m.delete(this.Time);});
                 do{  
+                    if(chance == 0){  option = true; break;     }
                  await this.message.channel.awaitMessages(filter,{max: 1, time: this.Time}).then(collected =>{
-                 if(chance == 0){
-                        this.logging("No more chances left skipping turn!");
-                      option = true;
-                        return;
-                    }
                     if(collected.first() == undefined){
                         chance -=1;
                         return;
@@ -459,12 +460,13 @@ class motherBrain {
                     if(this.checkAttack(enemyName)){
                     //Player Uses Skill Here
                         this.message.say(`${this.player.Name} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
-                        this.player.useSkill(index,enemyName,this.scenario.Enemies,this.message);
+                        this.player.useSkill(skill,enemyName,this.scenario.Enemies,this.message);
+                        enemyName = null;
                         option = true;
                         return;
                     }
                     this.message.say("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
-                    this.logging("Enemy not here " + enemyName);
+                    enemyName = null;
                     chance -=1;
                 });
                 }
@@ -549,5 +551,6 @@ class motherBrain {
         
     }
 }
+
 
 module.exports = motherBrain;

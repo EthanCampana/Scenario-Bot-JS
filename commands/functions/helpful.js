@@ -6,10 +6,10 @@ exports = module.exports  = {
          },
 
         "playerFunctions": {
-            "useSkill": function(index, Target, array, message){
-                let skill = this.Skills[index];
-                let type = skill.type;
-                switch(type){
+            //Function needed to use a skill in the game.. Need the skill object, Target and array that holds the Target object that the skill will affect
+            // Message is passed just to update the UI
+            "useSkill": function(skill, Target, array, message){
+                switch(skill.type){
                     case "Buff":
                         this.MP -= skill.cost;
                         if(skill.length > 0){
@@ -22,9 +22,8 @@ exports = module.exports  = {
                             array[targetindex].currentBuffs.push(buff);
                             break;
                         }
-                        let targetStat = skill.stat;
                         let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                        array[targetindex][targetStat] += skill.amount;
+                        array[targetindex][skill.statt] += skill.amount;
                     case "Physical":
                         this.MP -= skill.cost;
                         let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
@@ -35,11 +34,10 @@ exports = module.exports  = {
                         break;
                     case "Magic":
                         this.MP -= skill.cost;
-                        let targetStat = skill.stat;
                         let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
                         message.say(`${this.Name} casted ${skill.name} on ${Target}`);
                         message.say(`${this.Name} inflicted ${skill.amount} to ${Target}`);
-                        array[targetindex][targetStat] -= skill.amount;
+                        array[targetindex][skill.stat] -= skill.amount;
                         if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
                             message.say(`${array[targetindex].Name} has been slain!`); break;}
                         if(skill.hasOwnProperty('Debuff')){
@@ -90,6 +88,7 @@ exports = module.exports  = {
             
         "Update":function(){
             global.scenario.Players.forEach((value, index, array) => {
+                let skillMap = new Map();
                 value.defend = this.playerFunctions.Defend;
                 value.useSkill = this.playerFunctions.useSkill;
                 value.Act = this.playerFunctions.Action;
@@ -98,7 +97,11 @@ exports = module.exports  = {
                 value.Debuffs = [];
                 value.isAlive = true;
                 value.hasDefended = false;
-                value.hasFled = false; });
+                value.hasFled = false;
+                value.Skills.forEach((value) => {skillMap.set(value.name.toUpperCase(),value)});
+                value.Skills = skillMap;
+                skillMap = null;
+                });
             global.scenario.Enemies.forEach((value, index, array) => {
               value.Act = this.playerFunctions.Action;
               value.useSkill = this.playerFunctions.useSkill;
