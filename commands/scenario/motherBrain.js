@@ -28,6 +28,13 @@ class motherBrain {
          text += `Current MP: ${this.player.MP}`;
         return text;
     }
+    
+    healPlayers(){
+        this.scenario.Players.forEach((value)=>{
+            value.HP += 50;
+            value.MP += 30;
+        })
+    }
 
     deletePlayers(){
         let playablecast = this.scenario.Players.filter((value, index, array)=> {return value.playerID !== null;});
@@ -204,7 +211,7 @@ class motherBrain {
     //BATTLE FUNCTION DETERMINES WHO TURN IT IS AND WHEN THE BATTLE IS OVER
     async commenceBattle(turnorder){
         let isBattleOver = false;
-        var i = 0;
+        let i = 0;
         while(isBattleOver == false){
             turnorder = this.whoAlive(turnorder);
             isBattleOver = this.checkBattleStatus(turnorder);
@@ -225,6 +232,7 @@ class motherBrain {
             }
             i++;
         };
+        healPlayers();
         this.logging("Battle has ended");
         }
 
