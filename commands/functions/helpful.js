@@ -116,7 +116,7 @@ exports = module.exports  = {
 
         },
         "findSwap" : function(message,map,id){
-                    map.forEach((value,key,map) => {
+                    map.forEach((value,key) => {
                         if(value.playerID ==  id){
                             value.playerID = null;
                            message.say("You have swapped characters!").then(m => {m.delete(100000);})
@@ -139,8 +139,8 @@ exports = module.exports  = {
         "replaceKeyword": function(keyword,phrase,map){
                 if(keyword === 'PLAYERS'){
                     let text = "";
-                    nameIterator = map.values();
-                    for(i= 1; i <= map.size; i++){
+                    let nameIterator = map.values();
+                    for(let i= 1; i <= map.size; i++){
                         let andindex = map.size - 1;
                         if(andindex == 1){
                             text += nameIterator.next().value.Name;
@@ -152,9 +152,9 @@ exports = module.exports  = {
                         }
                         text += nameIterator.next().value.Name + ", "
                       }
-                       phrase = phrase.replace(keyword,text);
-                      return phrase;
-                }
+                             
+                return phrase.replace(keyword,text);
+            }
                 return phrase;
         },
 
