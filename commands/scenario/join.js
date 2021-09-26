@@ -32,7 +32,8 @@ class Join extends commando.Command{
             message.say(embed);
 
             let chosen = false;
-            var waitattempts = 2;
+            let waitattempts = 2;
+            
             do{
                 let filter = m => m.author.id === message.author.id;
                 await message.channel.awaitMessages(filter,{max: 1, time: 200000}).then(collected =>{
@@ -45,22 +46,18 @@ class Join extends commando.Command{
                     message.say("please choose a character").then(m => {m.delete(30000);});
                     return;
                 }
-                if(collected.first().content){
-                    let choice = collected.first().content;
-                    let chosenindex = global.scenario.Players.findIndex((value, index, array) =>{
-                        if(value.playerID  !== null){return;}
-                        return value.Name.toUpperCase() == choice.toUpperCase();})
-                    if(chosenindex > -1){
-                        let swap = function(array,index){array[index].playerID = "";return;};
-                        helpful.findSwap(message,"playerID", message.author.id, global.scenario.Players, swap);
-                        global.scenario.Players[chosenindex].playerID = message.author.id;
-                        message.say(`${message.author} has chosen ${choice}`).then(m => {m.delete(30000);});
-                        return chosen = true;
-                    }
-                    message.say("Player is not available or does not exist! You have " + waitattempts.toString() + "  attempts remaining." ).then(m => {m.delete(30000);});
-                    waitattempts -=1;
-                    return;
+                let choice = collected.first().content.toUpperCase();
+                if(global.scenario.Players.has(choice) && global.scenario.Players.get(choice).playerID == null){
+                    let char = global.scenario.Players.get(choice);
+                    helpful.findSwap(message,global.scenario.Players,message.author.id);
+                    char.playerID = message.author.id;
+                    global.scenario.Players.set(choice,char);
+                    message.say(`${message.author} has chosen ${choice}`).then(m => {m.delete(30000);})
+                    return chosen = true;
                 }
+                message.say("Player is not available or does not exist! You have " + waitattempts.toString() + "  attempts remaining." ).then(m => {m.delete(30000);});
+                waitattempts -=1;
+                return;
                 });
             }
             while(chosen == false);
