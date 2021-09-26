@@ -157,7 +157,6 @@ class motherBrain {
            let Line = "PLAYERS have successfully fled";
            Line = helpful.replaceKeyword('PLAYERS', Line ,this.scenario.Players);
            this.channel.send(Line);
-           Line=null;
            return true;
        }
        return false;
@@ -250,9 +249,6 @@ class motherBrain {
             }
             i++;
         };
-        isBattleOver = null;
-        i = null;
-        turnorder = null
         this.healPlayers();
         this.logging("Battle has ended");
         }
@@ -323,9 +319,6 @@ class motherBrain {
         }
         }
         while(optionChosen == false)
-        optionChosen = null;
-        action = null;
-        filter = null;
     }
 
 
@@ -361,9 +354,6 @@ class motherBrain {
             });
         }
         while(option == false)
-        option = null;
-        chance = null;
-        filter = null;  
         this.logging("Sub-Menu Closed");
     }
 
@@ -415,11 +405,7 @@ class motherBrain {
                 }
             }
         while(option == false)
-        filter=null; 
-        chance = null;
         if(hasexited){
-            option = false;
-            hasexited = null;
             return option;
         }
         return option;
@@ -552,8 +538,6 @@ class motherBrain {
                     skill=null;
                 }
         }
-      choice=null;
-      keys=null; 
     }
 
 
@@ -583,7 +567,6 @@ class motherBrain {
                     await this.commenceBattle(this.turnorder);
                 }
                 await this.channel.send(line).then(m => {m.delete(this.Time);});
-                line = null;
             }
             this.GameOver = true;
         }
