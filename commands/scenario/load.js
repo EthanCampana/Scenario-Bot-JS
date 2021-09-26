@@ -1,6 +1,6 @@
 const commando = require('discord.js-commando');
 const fs = require('fs');
-const { RichEmbed } = require('discord.js');
+const {MessageEmbed, DiscordAPIError } = require('discord.js');
 class LoadGame extends commando.Command{
     constructor(client){
         super(client,{
@@ -20,18 +20,17 @@ class LoadGame extends commando.Command{
         let game = JSON.parse(rawdata);
         global.scenario = game;
         message.say(`${global.scenario['Title']} has been loaded successfully.`);
-        let embed = new RichEmbed()
+        let embed = new MessageEmbed() 
             .setColor('#61ff90')
             .setTitle(global.scenario.Title)
             .setAuthor(global.scenario.Author)
             .setDescription('SETTINGS')
-            .addBlankField()
             .addField('minPlayers', global.scenario.Options.minPlayer, true)
 	        .addField('maxPlayers', global.scenario.Options.maxPlayer, true)
             .addField('Creatable Characters', global.scenario.Options.canCreate, true);
             message.say(embed);
     }
-
+    
 }
 
 module.exports = LoadGame;

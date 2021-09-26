@@ -1,5 +1,5 @@
 const commando = require('discord.js-commando');
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const helpful = require('./../functions/helpful.js');
 
 class Join extends commando.Command{
@@ -19,21 +19,20 @@ class Join extends commando.Command{
                 message.say("There are no playable characters in this scenario. create some or add them to the scenario manually");
                 return;
             }
-            let embed = new RichEmbed()
+            let embed = new MessageEmbed()
             .setColor('#61ff90')
             .setTitle('PLAYERS')
             .setAuthor(global.scenario.Title)
             .setDescription(`Welcome! These are the heroes, villians, friends and foes that will be on this journey..
-                            Choose wisely who you want to become... and reach the end of the scenario if you dare.`)
-            .addBlankField();
+                            Choose wisely who you want to become... and reach the end of the scenario if you dare.`);
 
     
-            helpful.showCharacter(embed,global.scenario.Players);
+            helpful.displayCharacters(embed,global.scenario.Players);
             message.say(embed);
 
             let chosen = false;
             let waitattempts = 2;
-            
+            helpful.Update() 
             do{
                 let filter = m => m.author.id === message.author.id;
                 await message.channel.awaitMessages(filter,{max: 1, time: 200000}).then(collected =>{

@@ -57,7 +57,6 @@ exports = module.exports  = {
                 let max = this.Attack / 0.5;
                 let damage =  Math.round((Range(min,max)) - (target.Defense * 0.75));
                 console.log(`Damage: ${damage}`);
-                Math.max(0,damage);
                 channel.send(`${this.Name} did ${damage} damage to ${target.Name}`).then(m => {m.delete(100000);});
                 target.HP -= damage;
                 if(target.HP  < 0){ target.isAlive = false;
@@ -74,68 +73,9 @@ exports = module.exports  = {
                 },            
         
                 
+},
             
-        "Update":function(){
-            //Maps player names to the player object
-            let playerMap = new Map();
-
-            //Maps Enemy names to the enemy objects
-            let enemyMap = new Map();
             
-            global.scenario.Players.forEach((value, index, array) => {
-                let skillMap = new Map();
-                value.defend = this.playerFunctions.Defend;
-                value.useSkill = this.playerFunctions.useSkill;
-                value.Act = this.playerFunctions.Action;
-                value.currentBuffs = []; // Moves that buff characters 
-                value.Type = "Player"; 
-                value.Debuffs = [];
-                value.isAlive = true;
-                value.hasDefended = false;
-                value.hasFled = false;
-                value.Skills.forEach((skill) => {skillMap.set(skill.name.toUpperCase(),value)});
-                value.Skills = skillMap;
-                skillMap = null;
-                playerMap.set(value.Name.toUpperCase(), value);
-                });
-            global.scenario.Enemies.forEach((value, index, array) => {
-              value.Act = this.playerFunctions.Action;
-              value.useSkill = this.playerFunctions.useSkill;
-              value.currentBuffs = [];
-              value.Debuffs = []; 
-              value.Type = "Enemy";
-              value.defend = this.playerFunctions.Defend;
-              value.isAlive = true;
-              value.hasDefended = false; 
-              enemyMap.set(value.Name.toUpperCase(), value);
-            });
-            // replaces arrays with Maps
-            global.scenario.Players = playerMap;
-            global.scenario.Enemies = enemyMap;
-
-
-        },
-        "findSwap" : function(message,map,id){
-                    map.forEach((value,key) => {
-                        if(value.playerID ==  id){
-                            value.playerID = null;
-                           message.say("You have swapped characters!").then(m => {m.delete(100000);})
-                        }
-                    });
-    
-            return;
-        },
-
-        "showCharacter": function(embed,array){
-            array.forEach((value, index, array)=> {
-                index +=1;
-                embed.addField("Player " + index.toString(), "Name: " + JSON.stringify(value.Name) + "\n HP: " + JSON.stringify(value.HP) + "\n Attack: " +
-                JSON.stringify(value.Attack) + "\n Defense:" + JSON.stringify(value.Defense)
-                );
-            });
-        },
-            
-        
         "replaceKeyword": function(keyword,phrase,map){
                 if(keyword === 'PLAYERS'){
                     let text = "";
@@ -178,7 +118,65 @@ exports = module.exports  = {
              arr.push(value);
              return arr;
 
-        }
+        },
     
-}
+        "Update":function(){
+            //Maps player names to the player object
+            let playerMap = new Map();
+
+            //Maps Enemy names to the enemy objects
+            let enemyMap = new Map();
+            
+            global.scenario.Players.forEach((value, index, array) => {
+                let skillMap = new Map();
+                value.defend = this.playerFunctions.Defend;
+                value.useSkill = this.playerFunctions.useSkill;
+                value.Act = this.playerFunctions.Action;
+                value.currentBuffs = []; // Moves that buff characters 
+                value.Type = "Player"; 
+                value.Debuffs = [];
+                value.isAlive = true;
+                value.hasDefended = false;
+                value.hasFled = false;
+                value.Skills.forEach((skill) => {skillMap.set(skill.name.toUpperCase(),value)});
+                value.Skills = skillMap;
+                skillMap = null;
+                playerMap.set(value.Name.toUpperCase(), value);
+                });
+            global.scenario.Enemies.forEach((value, index, array) => {
+              value.Act = this.playerFunctions.Action;
+              value.useSkill = this.playerFunctions.useSkill;
+              value.currentBuffs = [];
+              value.Debuffs = []; 
+              value.Type = "Enemy";
+              value.defend = this.playerFunctions.Defend;
+              value.isAlive = true;
+              value.hasDefended = false; 
+              enemyMap.set(value.Name.toUpperCase(), value);
+            });
+            // replaces arrays with Maps
+            global.scenario.Players = playerMap;
+            global.scenario.Enemies = enemyMap;
+
+
+        },
+
+        "findSwap" : function(message,map,id){
+                    map.forEach((value,key) => {
+                        if(value.playerID ==  id){
+                            value.playerID = null;
+                           message.say("You have swapped characters!").then(m => {m.delete(100000);})
+                        }
+                    });
+    
+            return;
+        },
+        "displayCharacters": function(embed,array){
+            array.forEach((value, index, array)=> {
+                index +=1;
+                embed.addField("Player " + index.toString(), "Name: " + JSON.stringify(value.Name) + "\n HP: " + JSON.stringify(value.HP) + "\n Attack: " +
+                JSON.stringify(value.Attack) + "\n Defense:" + JSON.stringify(value.Defense)
+                );
+            });
+        }
 }
