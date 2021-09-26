@@ -8,7 +8,7 @@ exports = module.exports  = {
         "playerFunctions": {
             //Function needed to use a skill in the game.. Need the skill object, Target and array that holds the Target object that the skill will affect
             // Message is passed just to update the UI
-            "useSkill": function(skill, Target, array, message){
+            "useSkill": function(skill,target,channel){
                 switch(skill.type){
                     case "Buff":
                         this.MP -= skill.cost;
@@ -18,75 +18,70 @@ exports = module.exports  = {
                             buff.stat = skill.stat;
                             buff.length = skill.length;
                             buff.amount = skill.amount;
-                            let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                            array[targetindex].currentBuffs.push(buff);
+                            target.currentBuffs.push(buff);
                             break;
                         }
-                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                        array[targetindex][skill.statt] += skill.amount;
+                        target[skill.stat] += skill.amount;
+                        break;
                     case "Physical":
                         this.MP -= skill.cost;
-                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                        message.say(`${this.Name} inflicted ${skill.damage} to ${Target}`);
-                        array[targetindex].HP -= skill.damage;
-                        if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
-                            message.say(`${array[targetindex].Name} has been slain!`);}
+                        channel.send(`${this.Name} inflicted ${skill.damage} to ${target.Name}`);
+                        target.HP -= skill.damage;
+                        if(target.HP  < 0){ target.isAlive = false; 
+                            channel.send(`${target.Name} has been slain!`);}
                         break;
                     case "Magic":
                         this.MP -= skill.cost;
-                        let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();});
-                        message.say(`${this.Name} casted ${skill.name} on ${Target}`);
-                        message.say(`${this.Name} inflicted ${skill.amount} to ${Target}`);
-                        array[targetindex][skill.stat] -= skill.amount;
-                        if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false; 
-                            message.say(`${array[targetindex].Name} has been slain!`); break;}
+                        channel.send(`${this.Name} casted ${skill.name} on ${target.Name}`);
+                        channel.send(`${this.Name} inflicted ${skill.amount} to ${target.Name}`);
+                        target[skill.stat] -= skill.amount;
+                        if(target.HP  < 0){ target.isAlive = false; 
+                            channel.send(`${target.Name} has been slain!`); break;}
                         if(skill.hasOwnProperty('Debuff')){
                             let roll = Math.floor((Math.random() * 100) +1);
                             if(roll < skill.chance){
-                                message.say(`${array[targetindex].Name} has been inflicted with ` + skill.Debuff.name);
-                                array[targetindex].Debuffs.push(skill.Debuff);
+                                channel.send(`${target.Name} has been inflicted with ` + skill.Debuff.name);
+                                target.Debuffs.push(skill.Debuff);
                             }  
                         }
                         break;     
                 }
+                return target;
             },
 
-            "Action": function Action(Target,array,message){
-                let targetindex = array.findIndex((value, index, array) => {return value.Name.toUpperCase() == Target.toUpperCase();})
+            "Action": function Action(target,channel){
                 let Range = function(min, max) {
                     return Math.floor(Math.random() * (max - min + 1) ) + min;
                  }
-                 let min = this.Attack * 0.5;
-                 let max = this.Attack / 0.5;
-                 let damage =  Math.round((Range(min,max)) - (array[targetindex].Defense * 0.75));
+                let min = this.Attack * 0.5;
+                let max = this.Attack / 0.5;
+                let damage =  Math.round((Range(min,max)) - (target.Defense * 0.75));
                 console.log(`Damage: ${damage}`);
-                if(damage < 0) { damage = 0;}
-                message.say(`${this.Name} did ${damage} damage to ${array[targetindex].Name}`).then(m => {m.delete(100000);});
-                array[targetindex].HP -= damage;
-                if(array[targetindex].HP  < 0){ array[targetindex].isAlive = false;
-                message.say(`${array[targetindex].Name} has been slain!`);
+                Math.max(0,damage);
+                channel.send(`${this.Name} did ${damage} damage to ${target.Name}`).then(m => {m.delete(100000);});
+                target.HP -= damage;
+                if(target.HP  < 0){ target.isAlive = false;
+                channel.send(`${target.Name} has been slain!`);
                 }
+                return target;
             },
 
-            "Defend": function Defend(message)
+            "Defend": function Defend(channel)
             {  
-                switch(this.Type){
-                    case "Player":
-                        message.say(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
-                        this.Defense *=2;
-                        this.hasDefended = true;
-                        break;
-                    case "Enemy":
-                        message.say(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
-                        this.Defense *=2;
-                        this.hasDefended = true;
-                        break;
-                }            
-        }
-            },
+                channel.send(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
+                this.Defense *=2;
+                this.hasDefended = true;
+                },            
+        
                 
             
         "Update":function(){
+            //Maps player names to the player object
+            let playerMap = new Map();
+
+            //Maps Enemy names to the enemy objects
+            let enemyMap = new Map();
+            
             global.scenario.Players.forEach((value, index, array) => {
                 let skillMap = new Map();
                 value.defend = this.playerFunctions.Defend;
@@ -98,9 +93,10 @@ exports = module.exports  = {
                 value.isAlive = true;
                 value.hasDefended = false;
                 value.hasFled = false;
-                value.Skills.forEach((value) => {skillMap.set(value.name.toUpperCase(),value)});
+                value.Skills.forEach((skill) => {skillMap.set(skill.name.toUpperCase(),value)});
                 value.Skills = skillMap;
                 skillMap = null;
+                playerMap.set(value.Name.toUpperCase(), value);
                 });
             global.scenario.Enemies.forEach((value, index, array) => {
               value.Act = this.playerFunctions.Action;
@@ -110,22 +106,23 @@ exports = module.exports  = {
               value.Type = "Enemy";
               value.defend = this.playerFunctions.Defend;
               value.isAlive = true;
-              value.hasDefended = false; });
+              value.hasDefended = false; 
+              enemyMap.set(value.Name.toUpperCase(), value);
+            });
+            // replaces arrays with Maps
+            global.scenario.Players = playerMap;
+            global.scenario.Enemies = enemyMap;
+
+
         },
-        "findSwap" : function(message,compare,contrast,array,callback){
-                    if(array.length == 1){
-                        return;
-                    }
-                    let index = array.findIndex((value,index,array) => {console.log(value[compare] + " + " + contrast); return value[compare] == contrast; });
-                    console.log(index);
-                    if(index  == array.length - 1){
-                        return;
-                    }
-                    if(index > -1){
-                        callback(array,index);
-                        message.say("You have swapped characters!").then(m => {m.delete(100000);});
-                        return;
-                    }
+        "findSwap" : function(message,map,id){
+                    map.forEach((value,key,map) => {
+                        if(value.playerID ==  id){
+                            value.playerID = null;
+                           message.say("You have swapped characters!").then(m => {m.delete(100000);})
+                        }
+                    });
+    
             return;
         },
 
@@ -139,20 +136,21 @@ exports = module.exports  = {
         },
             
         
-        "replaceKeyword": function(keyword,phrase,array){
+        "replaceKeyword": function(keyword,phrase,map){
                 if(keyword === 'PLAYERS'){
                     let text = "";
-                    for(i= 0; i < array.length; i++){
-                        let andindex = array.length - 1;
-                        if(andindex == 0){
-                            text += array[i].Name;
+                    nameIterator = map.values();
+                    for(i= 1; i <= map.size; i++){
+                        let andindex = map.size - 1;
+                        if(andindex == 1){
+                            text += nameIterator.next().value.Name;
                             break;
                         }
                         if(i == andindex){
-                          text += "and " + array[i].Name;
+                          text += "and " + nameIterator.next().value.Name;
                           break;
                         }
-                        text += array[i].Name + ", "
+                        text += nameIterator.next().value.Name + ", "
                       }
                        phrase = phrase.replace(keyword,text);
                       return phrase;
@@ -165,21 +163,22 @@ exports = module.exports  = {
             return array
         },
 
-        "enemyAppeared": function(value, arr, message){
+        "enemyAppeared": function(value, arr, channel){
             const { RichEmbed } = require('discord.js');
             if(value.hasOwnProperty("image")){
                 let embed = new RichEmbed()
                 .setTitle(value.Name)
                 .setImage(value.image)
                 .setDescription(`${value.Name} has appeared!`);
-                message.say(embed).then(m => {m.delete(100000);})
+                channel.send(embed).then(m => {m.delete(100000);})
              }
              else{
-              message.say(`${value.Name} has appeared!`).then(m => {m.delete(100000);})
+                channel.send(`${value.Name} has appeared!`).then(m => {m.delete(100000);})
              }
              arr.push(value);
              return arr;
 
         }
     
-    }
+}
+}
