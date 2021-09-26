@@ -100,7 +100,6 @@ class motherBrain {
     whoAlive(array){
         let playablecast = array.filter((value, index, array)=> {return value.isAlive == true;});
         this.turnorder = playablecast
-        return
     }
     //Gets all the names of the Enemies in the current battle
     getEnemyName(){
@@ -150,7 +149,7 @@ class motherBrain {
        let isPlayersAlive = array.some((value, index, array) => {return value.Type == "Player";});
        let isMonstersAlive = array.some((value, index, array) => {return value.Type == "Enemy";});
        let hasFled = array.some((value,index,array)=> {return value.hasFled == false;});
-       if(isMonstersAlive == false || this.turnorder.length == 1 || isPlayersAlive == false){
+       if(!isMonstersAlive || this.turnorder.length == 1 || !isPlayersAlive ){
            return true;
        }
        if(hasFled == false){
@@ -344,11 +343,9 @@ class motherBrain {
                 if(this.checkAttack(enemyName)){
                     this.scenario.Enemies.set(enemyName.toUpperCase(),this.player.Act(this.scenario.Enemies.get(enemyName.toUpperCase()),this.channel));
                     option = true;
-                    enemyName = null;
                     return;
                 }
                 this.channel.send("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
-                enemyName = null;
                 chance -=1;
                 
             });
@@ -365,7 +362,6 @@ class motherBrain {
         let chance = 3;
         let option = false;
         let filter = message => this.player.playerID === message.author.id;
-        let hasexited = false;
         let skillName;
         await  this.channel.send("Skills:").then(m => {m.delete(this.Time);});
         await this.channel.send(this.printSkills(this.player)).then(m => {m.delete(this.Time);});
@@ -383,9 +379,7 @@ class motherBrain {
 
             
             if(skillName == "BACK"){
-                hasexited = true;
-                option = true;
-                return;
+                break;
             }
 
             if(!this.player.Skills.has(skillName)){
@@ -405,8 +399,8 @@ class motherBrain {
                 }
             }
         while(option == false)
-        if(hasexited){
-            return option;
+        if(skillName == "BACK"){
+            return true;
         }
         return option;
     }
@@ -434,12 +428,10 @@ class motherBrain {
                     //Player Uses Skill Here on Player
                         this.channel.send(`${this.player.Name} used ${this.player.Skills[index].name} on ${playerName}`).then(m => {m.delete(this.Time);})
                         this.scenario.Players.get(playerName.toUpperCase(),this.player.useSkill(skill,this.scenario.Players.get(playerName.toUpperCase()),this.channel));
-                        playerName = null;
                         option = true;
                         return;
                     }
                     this.channel.send("No Player named " + playerName).then(m => {m.delete(this.Time);});
-                    playerName = null;
                     chance -=1;      
                     });
                     }
@@ -461,12 +453,10 @@ class motherBrain {
                         this.channel.send(`${this.player.Name} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
                         this.channel.send(this.player.Skills[index].hit).then(m => {m.delete(this.Time);});
                         this.scenario.Enemies.set(enemyName.toUpperCase(),this.player.useSkill(skill,this.scenario.Enemies.get(enemyName.toUpperCase()),this.channel));
-                        enemyName = null;
                         option = true;
                         return;
                     }
                     this.channel.send("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
-                    enemyName = null;
                     chance -=1;
                 });
                 }
@@ -486,19 +476,16 @@ class motherBrain {
                     //Player Uses Skill Here
                         this.channel.send(`${this.player.Name} used ${this.player.Skills[index].name} `).then(m => {m.delete(this.Time);});
                         this.scenario.Enemies.set(enemyName.toUpperCase(),this.player.useSkill(skill,this.scenario.Enemies.get(enemyName.toUpperCase()),this.channel));
-                        enemyName = null;
                         option = true;
                         return;
                     }
                     this.channel.send("Enemy not here " + enemyName).then(m => {m.delete(this.Time);});
-                    enemyName = null;
                     chance -=1;
                 });
                 }
                 while(option == false)
                 break;
         }
-        filter = null;
         chance = null;
         return option;
 
@@ -535,7 +522,6 @@ class motherBrain {
                             this.scenario.Players.set(target.Name.toUpperCase(),enemy.useSkill(skill,this.scenario.Players.get(keys[Math.floor(Math.random() * keys.length)]),this.channel));
                             break;
                     }
-                    skill=null;
                 }
         }
     }
@@ -545,7 +531,7 @@ class motherBrain {
    async run(){
         this.logging("Checking Requirements.....") ;
         this.Time = this.scenario.Options.timer * 1000;
-        if(this.checkConditions() == false){ 
+        if(!this.checkConditions()){ 
             this.logging("Game start requirements not met!");
             return;}
         this.logging("Deleting Players.....");
