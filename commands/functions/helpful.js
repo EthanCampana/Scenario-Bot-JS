@@ -57,7 +57,7 @@ exports = module.exports  = {
                 let max = this.Attack / 0.5;
                 let damage =  Math.round((Range(min,max)) - (target.Defense * 0.75));
                 console.log(`Damage: ${damage}`);
-                channel.send(`${this.Name} did ${damage} damage to ${target.Name}`).then(m => {m.delete(100000);});
+                channel.send(`${this.Name} did ${damage} damage to ${target.Name}`).then(m => {m.delete({"timeout":100000});});
                 target.HP -= damage;
                 if(target.HP  < 0){ target.isAlive = false;
                 channel.send(`${target.Name} has been slain!`);
@@ -67,7 +67,7 @@ exports = module.exports  = {
 
             "Defend": function Defend(channel)
             {  
-                channel.send(`${this.Name} has Defended!`).then(m => {m.delete(100000);});
+                channel.send(`${this.Name} has Defended!`).then(m => {m.delete({"timeout":100000});});
                 this.Defense *=2;
                 this.hasDefended = true;
                 },            
@@ -104,16 +104,16 @@ exports = module.exports  = {
         },
 
         "enemyAppeared": function(value, arr, channel){
-            const { RichEmbed } = require('discord.js');
+            const { MessageEmbed } = require('discord.js');
             if(value.hasOwnProperty("image")){
-                let embed = new RichEmbed()
+                let embed = new MessageEmbed()
                 .setTitle(value.Name)
                 .setImage(value.image)
                 .setDescription(`${value.Name} has appeared!`);
-                channel.send(embed).then(m => {m.delete(100000);})
+                channel.send(embed).then(m => {m.delete({"timeout":100000});})
              }
              else{
-                channel.send(`${value.Name} has appeared!`).then(m => {m.delete(100000);})
+                channel.send(`${value.Name} has appeared!`).then(m => {m.delete({"timeout":100000});})
              }
              arr.push(value);
              return arr;
@@ -165,7 +165,7 @@ exports = module.exports  = {
                     map.forEach((value,key) => {
                         if(value.playerID ==  id){
                             value.playerID = null;
-                           message.say("You have swapped characters!").then(m => {m.delete(100000);})
+                           message.say("You have swapped characters!").then(m => {m.delete({"timeout":100000});})
                         }
                     });
     
