@@ -59,10 +59,9 @@ exports = module.exports  = {
                 console.log(`Damage: ${damage}`);
                 channel.send(`${this.Name} did ${damage} damage to ${target.Name}`).then(m => {m.delete({"timeout":100000});});
                 target.HP -= damage;
-                if(target.HP  < 0){ target.isAlive = false;
+                if(target.HP  < 0){ 
                 channel.send(`${target.Name} has been slain!`);
                 }
-                return target;
             },
 
             "Defend": function Defend(channel)
@@ -135,10 +134,9 @@ exports = module.exports  = {
                 value.currentBuffs = []; // Moves that buff characters 
                 value.Type = "Player"; 
                 value.Debuffs = [];
-                value.isAlive = true;
                 value.hasDefended = false;
                 value.hasFled = false;
-                value.Skills.forEach((skill) => {skillMap.set(skill.name.toUpperCase(),value)});
+                value.Skills.forEach((skill) => {skillMap.set(skill.name.toUpperCase(),skill)});
                 value.Skills = skillMap;
                 skillMap = null;
                 playerMap.set(value.Name.toUpperCase(), value);
@@ -150,7 +148,6 @@ exports = module.exports  = {
               value.Debuffs = []; 
               value.Type = "Enemy";
               value.defend = this.playerFunctions.Defend;
-              value.isAlive = true;
               value.hasDefended = false; 
               enemyMap.set(value.Name.toUpperCase(), value);
             });
