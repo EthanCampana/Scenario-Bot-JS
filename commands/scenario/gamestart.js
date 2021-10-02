@@ -1,5 +1,4 @@
 const commando = require('discord.js-commando');
-const helpful = require('./../functions/helpful.js');
 const motherBrain = require('./motherBrain.js');
 const { MessageEmbed } = require('discord.js');
 class Gamestart extends commando.Command{

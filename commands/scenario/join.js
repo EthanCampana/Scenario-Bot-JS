@@ -32,7 +32,7 @@ class Join extends commando.Command{
 
             let chosen = false;
             let waitattempts = 2;
-            helpful.Update() 
+          
             do{
                 let filter = m => m.author.id === message.author.id;
                 await message.channel.awaitMessages(filter,{max: 1, time: 200000}).then(collected =>{
