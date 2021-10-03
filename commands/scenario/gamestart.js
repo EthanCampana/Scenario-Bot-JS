@@ -14,18 +14,21 @@ class Gamestart extends commando.Command{
     }
 
     async run(message, args){
-        if("Title" in global.scenario){
+        let scenario
+        if(global.games.has(global.pointer)){
+        scenario = global.games.get(global.pointer)
+        }
+        if("Title" in scenario){
             //helpful.Update();
-           
-            await message.guild.channels.create(global.scenario.Title, { type: "text" })
+            await message.guild.channels.create(scenario.Title, { type: "text" })
             let channel  = message.guild.channels.cache.find(channel => channel.name === "the-heros-dungeon");
-            global.game = new motherBrain(channel,global.scenario);
+            global.games.set(scenario.Title,new motherBrain(channel,scenario));
             let embed = new MessageEmbed()
             .setColor('#61ff90')
-            .setTitle(global.scenario.Title)
-            .setAuthor(global.scenario.Author);
+            .setTitle(scenario.Title)
+            .setAuthor(scenario.Author);
             await channel.send(embed);
-            global.game.run();
+            global.games.get(scenario.Title).run()
             return;
         }
        message.say("There is no active game");

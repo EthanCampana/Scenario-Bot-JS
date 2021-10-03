@@ -19,18 +19,21 @@ class LoadGame extends commando.Command{
     
         let rawdata = fs.readFileSync( __dirname + `/stories/${story}.json`);
         let game = JSON.parse(rawdata);
-        global.scenario = game;
-        helpful.Update()
-        message.say(`${global.scenario['Title']} has been loaded successfully.`);
+        let scenario = game;
+        helpful.Update(scenario)
+        message.say(`${scenario['Title']} has been loaded successfully.`);
         let embed = new MessageEmbed() 
             .setColor('#61ff90')
-            .setTitle(global.scenario.Title)
-            .setAuthor(global.scenario.Author)
+            .setTitle(scenario.Title)
+            .setAuthor(scenario.Author)
             .setDescription('SETTINGS')
-            .addField('minPlayers', global.scenario.Options.minPlayer, true)
-	        .addField('maxPlayers', global.scenario.Options.maxPlayer, true)
-            .addField('Creatable Characters', global.scenario.Options.canCreate, true);
+            .addField('minPlayers', scenario.Options.minPlayer, true)
+	        .addField('maxPlayers', scenario.Options.maxPlayer, true)
+            .addField('Creatable Characters', scenario.Options.canCreate, true);
             message.say(embed);
+        let id = `${scenario.Title}-${Math.floor(Math.random() * 10) + 1}`
+        global.games.set(id,scenario)
+        global.pointer = id 
     }
 }
 

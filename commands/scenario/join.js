@@ -14,20 +14,27 @@ class Join extends commando.Command{
     }
 
     async run(message, args){
-        if(global.scenario.Players){
-            if(global.scenario.Players.length == 0){
+        let scenario
+        if(global.games.has(global.pointer)){
+            scenario = global.games.get(global.pointer)
+        }else{
+            message.say("Their is no game to join").then(m => {m.delete({"timeout":30000});});
+
+        }
+        if(scenario.Players){
+            if(scenario.Players.length == 0){
                 message.say("There are no playable characters in this scenario. create some or add them to the scenario manually");
                 return;
             }
             let embed = new MessageEmbed()
             .setColor('#61ff90')
             .setTitle('PLAYERS')
-            .setAuthor(global.scenario.Title)
+            .setAuthor(scenario.Title)
             .setDescription(`Welcome! These are the heroes, villians, friends and foes that will be on this journey..
                             Choose wisely who you want to become... and reach the end of the scenario if you dare.`);
 
     
-            helpful.displayCharacters(embed,global.scenario.Players);
+            helpful.displayCharacters(embed,scenario.Players);
             message.say(embed);
 
             let chosen = false;
@@ -46,11 +53,11 @@ class Join extends commando.Command{
                     return;
                 }
                 let choice = collected.first().content.toUpperCase();
-                if(global.scenario.Players.has(choice) && global.scenario.Players.get(choice).playerID == null){
-                    let char = global.scenario.Players.get(choice);
-                    helpful.findSwap(message,global.scenario.Players,message.author.id);
+                if(scenario.Players.has(choice) && scenario.Players.get(choice).playerID == null){
+                    let char = scenario.Players.get(choice);
+                    helpful.findSwap(message,scenario.Players,message.author.id);
                     char.playerID = message.author.id;
-                    global.scenario.Players.set(choice,char);
+                    scenario.Players.set(choice,char);
                     message.say(`${message.author} has chosen ${choice}`).then(m => {m.delete({"timeout":30000});})
                     return chosen = true;
                 }
@@ -60,7 +67,7 @@ class Join extends commando.Command{
                 });
             }
             while(chosen == false);
-            console.log(global.scenario.Players);
+            console.log(scenario.Players);
             return;
         }
         message.say("Their is no game to join").then(m => {m.delete({"timeout":30000});});

@@ -119,14 +119,14 @@ exports = module.exports  = {
 
         },
     
-        "Update":function(){
+        "Update":function(scenario){
             //Maps player names to the player object
             let playerMap = new Map();
 
             //Maps Enemy names to the enemy objects
             let enemyMap = new Map();
             
-            global.scenario.Players.forEach((value, index, array) => {
+            scenario.Players.forEach((value, index, array) => {
                 let skillMap = new Map();
                 value.defend = this.playerFunctions.Defend;
                 value.useSkill = this.playerFunctions.useSkill;
@@ -142,7 +142,7 @@ exports = module.exports  = {
                 skillMap = null;
                 playerMap.set(value.Name.toUpperCase(), value);
                 });
-            global.scenario.Enemies.forEach((value, index, array) => {
+            scenario.Enemies.forEach((value, index, array) => {
               value.Act = this.playerFunctions.Action;
               value.useSkill = this.playerFunctions.useSkill;
               value.currentBuffs = [];
@@ -154,8 +154,8 @@ exports = module.exports  = {
               enemyMap.set(value.Name.toUpperCase(), value);
             });
             // replaces arrays with Maps
-            global.scenario.Players = playerMap;
-            global.scenario.Enemies = enemyMap;
+            scenario.Players = playerMap;
+            scenario.Enemies = enemyMap;
 
 
         },
@@ -171,11 +171,14 @@ exports = module.exports  = {
             return;
         },
         "displayCharacters": function(embed,array){
-            array.forEach((value, index, array)=> {
-                index +=1;
-                embed.addField("Player " + index.toString(), "Name: " + JSON.stringify(value.Name) + "\n HP: " + JSON.stringify(value.HP) + "\n Attack: " +
+            let i = 1
+                array.forEach((value, index, array)=> {
+                
+                embed.addField("Player " + i.toString(), "Name: " + JSON.stringify(value.Name) + "\n HP: " + JSON.stringify(value.HP) + "\n Attack: " +
                 JSON.stringify(value.Attack) + "\n Defense:" + JSON.stringify(value.Defense)
+
                 );
+                i++
             });
         }
 }
