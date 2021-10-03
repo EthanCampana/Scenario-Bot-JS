@@ -128,12 +128,24 @@ class motherBrain {
     this.turnorder = arr
     this.logging(this.turnorder)
     }
-    //gets all the names of the enemies in the current battle
+   
+    renderHealthBar(entity){
+        let g_health = '🟩'
+        let r_health = '🟥'
+        let render = ''
+        let formula =  Math.ceil(entity.HP/(entity.MaxHP/5))
+        render=render.concat('',r_health.repeat(5-formula)) 
+        render=render.concat('',g_health.repeat(formula)) 
+        if(entity.hasDefended){render=render.concat('','🛡️')}
+        return render
+    }
+    
+     //gets all the names of the enemies in the current battle
     getEnemyName(){
         let text =""
         this.turnorder.forEach((value, index, array) => {
         if (value.Type == "Enemy"){
-            text += value.Name + "\n";
+            text += `${value.Name}: ${this.renderHealthBar(value)} \n`;
         }
         })
         return text
@@ -544,7 +556,7 @@ class motherBrain {
 //-------------- MAIN Game Loop ------------------------------------//
         this.logging("Game Started");
         this.logging(this.scenario.Players);
-        while(this.GameOver == false){
+        while(!this.GameOver){
             for(let i = 0; i < this.scenario.Story.length; i++){
                 await this.sleep(this.scenario.Options.textSpeed);
                 let line = helpful.replaceKeyword('PLAYERS',scenario.Story[i],this.scenario.Players);

@@ -133,6 +133,7 @@ exports = module.exports  = {
                 value.Act = this.playerFunctions.Action;
                 value.currentBuffs = []; // Moves that buff characters 
                 value.Type = "Player"; 
+                value.MaxHP = value.HP
                 value.Debuffs = [];
                 value.hasDefended = false;
                 value.hasFled = false;
@@ -146,6 +147,7 @@ exports = module.exports  = {
               value.useSkill = this.playerFunctions.useSkill;
               value.currentBuffs = [];
               value.Debuffs = []; 
+              value.MaxHP = value.HP
               value.Type = "Enemy";
               value.defend = this.playerFunctions.Defend;
               value.hasDefended = false; 
