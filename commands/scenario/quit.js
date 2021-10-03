@@ -13,7 +13,7 @@ class LoadGame extends commando.Command{
     }
 
     async run(message){
-       global.game.quit();
+       global.games.get(global.pointer).quit();
     }
 
 }

@@ -11,6 +11,8 @@ client.registry.registerDefaultGroups();
 client.registry.registerDefaultCommands();
 client.registry.registerCommandsIn(__dirname + "/commands");
 global.scenario = {};
+global.pointer = ""
+global.games = new Map()
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);

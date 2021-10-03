@@ -559,7 +559,7 @@ class motherBrain {
         while(!this.GameOver){
             for(let i = 0; i < this.scenario.Story.length; i++){
                 await this.sleep(this.scenario.Options.textSpeed);
-                let line = helpful.replaceKeyword('PLAYERS',scenario.Story[i],this.scenario.Players);
+                let line = helpful.replaceKeyword('PLAYERS',this.scenario.Story[i],this.scenario.Players);
                 if(this.whichBattle(i)){
                     this.logging("Setting up current Battle....");
                     this.createTurns(this.getBattleIndex(i));
