@@ -1,5 +1,6 @@
 const commando = require('discord.js-commando');
 const fs = require('fs');
+const motherBrain = require('./motherBrain');
 class LoadGame extends commando.Command{
     constructor(client){
         super(client,{
@@ -13,7 +14,16 @@ class LoadGame extends commando.Command{
     }
 
     async run(message){
-       global.games.get(global.pointer).quit();
+       if(!global.games.get(global.pointer) instanceof motherBrain ){
+           message.say("You must use this command on a selected Active Game")
+           return
+       }
+       if(message.channel.id == global.games.get(global.pointer).channel.id){
+        global.games.get(global.pointer).quit();
+        global.games.delete(global.pointer)
+        return
+       }
+       message.say("You Must Call this command in an activate Game Channel!")
     }
 
 }

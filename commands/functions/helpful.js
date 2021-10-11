@@ -1,4 +1,5 @@
 //LIST OF HELPFUL FUNCTIONS
+const { Permissions } = require('discord.js');
 exports = module.exports  = {
         //array of functions to be loaded in easier
         "Range": function(min, max) {
@@ -180,5 +181,29 @@ exports = module.exports  = {
                 );
                 i++
             });
+        },
+        "channelFormat": function(name){
+            name = name.toLowerCase();
+            name = name.replace(/ /g,'-')
+            name = name.replace(/\'/g,'')
+            return name
+
+        },
+        "createChannel":function(scenario, message,category){
+            let channel = {}
+            channel.type = 'text' 
+            channel.parent = category
+            channel.permissionOverwrites = []
+            channel.permissionOverwrites.push({id:message.guild.id, deny:[Permissions.FLAGS.VIEW_CHANNEL]})
+            channel.permissionOverwrites.push({id:'398200933160321024', allow:[Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES,Permissions.FLAGS.ADD_REACTIONS,Permissions.FLAGS.READ_MESSAGE_HISTORY]})
+            scenario.Players.forEach((value)=>{
+                if(value.playerID != null){
+                    channel.permissionOverwrites.push({id:value.playerID, allow:[Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES,Permissions.FLAGS.ADD_REACTIONS,Permissions.FLAGS.READ_MESSAGE_HISTORY]})
+                }
+
+            })
+            
+
+            return channel 
         }
 }

@@ -1,6 +1,7 @@
 const commando = require('discord.js-commando');
 const motherBrain = require('./motherBrain.js');
 const { MessageEmbed } = require('discord.js');
+const helpful = require('../functions/helpful.js');
 class Gamestart extends commando.Command{
     constructor(client){
         super(client,{
@@ -19,16 +20,16 @@ class Gamestart extends commando.Command{
         scenario = global.games.get(global.pointer)
         }
         if("Title" in scenario){
-            //helpful.Update();
-            await message.guild.channels.create(scenario.Title, { type: "text" })
-            let channel  = message.guild.channels.cache.find(channel => channel.name === "the-heros-dungeon");
-            global.games.set(scenario.Title,new motherBrain(channel,scenario));
+            let category = message.guild.channels.cache.get('894284353780199575')
+            await message.guild.channels.create(scenario.Title, helpful.createChannel(scenario,message,category) )
+            let channel  = message.guild.channels.cache.find(channel => channel.name === helpful.channelFormat(scenario.Title));
+            global.games.set(global.pointer,new motherBrain(channel,scenario));
             let embed = new MessageEmbed()
             .setColor('#61ff90')
             .setTitle(scenario.Title)
             .setAuthor(scenario.Author);
             await channel.send(embed);
-            global.games.get(scenario.Title).run()
+            global.games.get(global.pointer).run()
             return;
         }
        message.say("There is no active game");
