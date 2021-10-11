@@ -16,6 +16,6 @@ class Debug extends commando.Command{
     }
 
     async run(message, args){
-}
+    }
 }
 module.exports = Debug;

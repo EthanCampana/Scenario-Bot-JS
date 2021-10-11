@@ -28,6 +28,9 @@ class motherBrain {
     quit(){
         this.GameOver = true;
         this.scenario.Story = "";
+        this.channel.send("Ending the current Game...")
+        this.logging("Exiting.....")
+        this.channel.delete()
     }
 
     sleep(ms) {
@@ -557,20 +560,27 @@ class motherBrain {
         this.logging("Game Started");
         this.logging(this.scenario.Players);
         while(!this.GameOver){
-            for(let i = 0; i < this.scenario.Story.length; i++){
-                await this.sleep(this.scenario.Options.textSpeed);
-                let line = helpful.replaceKeyword('PLAYERS',this.scenario.Story[i],this.scenario.Players);
-                if(this.whichBattle(i)){
-                    this.logging("Setting up current Battle....");
-                    this.createTurns(this.getBattleIndex(i));
-                    this.logging('Commencing Battle');
-                    let battletext = helpful.replaceKeyword('PLAYERS', this.battletext[Math.floor(Math.random() * this.battletext.length)],this.scenario.Players)
-                    await this.channel.send(battletext).then(m => {m.delete(this.Time);});
-                    battletext = null;
-                    await this.commenceBattle();
+                try {
+                    for(let i = 0; i < this.scenario.Story.length; i++){
+                        await this.sleep(this.scenario.Options.textSpeed);
+                        let line = helpful.replaceKeyword('PLAYERS',this.scenario.Story[i],this.scenario.Players);
+                        if(this.whichBattle(i)){
+                            this.logging("Setting up current Battle....");
+                            this.createTurns(this.getBattleIndex(i));
+                            this.logging('Commencing Battle');
+                            let battletext = helpful.replaceKeyword('PLAYERS', this.battletext[Math.floor(Math.random() * this.battletext.length)],this.scenario.Players)
+                            await this.channel.send(battletext).then(m => {m.delete(this.Time);});
+                            battletext = null;
+                            await this.commenceBattle();
+                        }
+                        await this.channel.send(line).then(m => {m.delete(this.Time);});
+                    }
                 }
-                await this.channel.send(line).then(m => {m.delete(this.Time);});
-            }
+            catch(ending){
+                //This Should be some discord API error... We are forcing the game to end.. it does not end gracefully.
+                console.log(ending)
+                break;
+                    }
             this.GameOver = true;
         }
         
