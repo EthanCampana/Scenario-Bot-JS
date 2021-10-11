@@ -14,7 +14,7 @@ class LoadGame extends commando.Command{
     }
 
     async run(message){
-       if(!global.games.get(global.pointer) instanceof motherBrain ){
+       if(!(global.games.get(global.pointer) instanceof motherBrain)){
            message.say("You must use this command on a selected Active Game")
            return
        }
