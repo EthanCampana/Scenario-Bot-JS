@@ -10,6 +10,7 @@ class motherBrain {
         this.Time = 0;
         this.turnorder = []
         this.GameOver = false;
+        this.pointer = 0
         
     }
 
@@ -561,7 +562,8 @@ class motherBrain {
         this.logging(this.scenario.Players);
         while(!this.GameOver){
                 try {
-                    for(let i = 0; i < this.scenario.Story.length; i++){
+                    for(let i = this.pointer; this.pointer < this.scenario.Story.length; this.pointer++){
+                        i = this.pointer
                         await this.sleep(this.scenario.Options.textSpeed);
                         let line = helpful.replaceKeyword('PLAYERS',this.scenario.Story[i],this.scenario.Players);
                         if(this.whichBattle(i)){
