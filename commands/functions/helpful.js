@@ -209,7 +209,6 @@ exports = module.exports  = {
        "createDebugChannel":function(message){
             let channel = {}
             channel.type = 'text' 
-            channel.parent = category
             channel.permissionOverwrites = []
             channel.permissionOverwrites.push({id:message.guild.id, deny:[Permissions.FLAGS.VIEW_CHANNEL]})
             channel.permissionOverwrites.push({id:'398200933160321024', allow:[Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES,Permissions.FLAGS.ADD_REACTIONS,Permissions.FLAGS.READ_MESSAGE_HISTORY]})

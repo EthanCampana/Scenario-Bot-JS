@@ -19,11 +19,12 @@ class Debug extends commando.Command{
         scenario = global.games.get(global.pointer)
         }
         if("Title" in scenario){
-            let c_name = `debug-room-${Math.Floor(Math.random()*10)}`
+            let c_name = `debug-room-${Math.floor(Math.random()*10)}`
             await message.guild.channels.create(c_name,helpful.createDebugChannel(message))
             let channel  = message.guild.channels.cache.find(channel => channel.name === c_name);
             let debugRoom = new debugBrain(channel,scenario,message.author)
             debugRoom.run() 
+            return
         }
         else{
             message.say("You can only open Debug Mode on an inactive Game")
